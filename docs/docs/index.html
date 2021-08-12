@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Indices and tables &mdash; SmartSim 0.3.1 documentation</title>
+  <title>Indices and tables &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -91,10 +91,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -214,6 +216,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#supported-versions">Supported Versions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#smartsim">SmartSim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#smartredis">SmartRedis</a></li>
@@ -231,7 +235,7 @@
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html#1.1-Running-Models">1.1 Running Models</a></li>
@@ -240,10 +244,24 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html#1.4-Ensembles-using-SmartRedis">1.4 Ensembles using SmartRedis</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/smartredis.html#python-client">2.1 Python Client</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/smartredis.html#c-client">2.2 C++ Client</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/smartredis.html#fortran-client">2.3 Fortran Client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/using_clients.html#python-client">2.1 Python Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/using_clients.html#c-client">2.2 C++ Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/using_clients.html#fortran-client">2.3 Fortran Client</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html#lattice-boltzmann-simulation">3.1 Lattice Boltzmann Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html#integrating-smartredis">3.2 Integrating SmartRedis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html#creating-the-analysis-driver">3.2 Creating the Analysis Driver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html#running-the-example">3.4 Running the Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/inference.html#your-first-inference-session">4.1 Your First Inference Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/inference.html#pytorch">4.2 PyTorch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/inference.html#tensorflow-and-keras">4.2 TensorFlow and Keras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/inference.html#onnx">4.3 ONNX</a></li>
 </ul>
 </li>
 </ul>
@@ -266,6 +284,7 @@
 <li class="toctree-l2"><a class="reference internal" href="launchers.html#slurm">Slurm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="launchers.html#pbspro">PBSPro</a></li>
 <li class="toctree-l2"><a class="reference internal" href="launchers.html#cobalt">Cobalt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launchers.html#lsf">LSF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api/smartsim_api.html">SmartSim API</a><ul>
@@ -273,6 +292,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/smartsim_api.html#settings">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/smartsim_api.html#orchestrator">Orchestrator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/smartsim_api.html#entity">Entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/smartsim_api.html#tensorflow">TensorFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/smartsim_api.html#slurm">Slurm</a></li>
 </ul>
 </li>

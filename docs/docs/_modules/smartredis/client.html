@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartredis.client &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartredis.client &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -227,7 +229,7 @@
 <span class="sd">        by the client itself. (e.g. address=&quot;127.0.0.1:6379&quot;)</span>
 
 <span class="sd">        If an address is not set, the client will look for the environment</span>
-<span class="sd">        variable ``$SSDB`` (e.g. SSDB=&quot;127.0.0.1:6379;&quot;)</span>
+<span class="sd">        variable ``SSDB`` (e.g. SSDB=&quot;127.0.0.1:6379;&quot;)</span>
 
 <span class="sd">        :param address: Address of the database</span>
 <span class="sd">        :param cluster: True if connecting to a redis cluster, defaults to False</span>
@@ -274,6 +276,46 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;get_tensor&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
 
+<div class="viewcode-block" id="Client.delete_tensor"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.delete_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">delete_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete a tensor within the database</span>
+
+<span class="sd">        :param key: key tensor is stored at</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :raises RedisReplyError: if deletion fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">delete_tensor</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;delete_tensor&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="Client.copy_tensor"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.copy_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">copy_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">dest_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy a tensor at one key to another key</span>
+
+<span class="sd">        :param key: key of tensor to be copied</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param dest_key: key to store new copy at</span>
+<span class="sd">        :type dest_key: str</span>
+<span class="sd">        :raises RedisReplyError: if copy operation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy_tensor</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">dest_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;copy_tensor&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="Client.rename_tensor"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.rename_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">rename_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rename a tensor in the database</span>
+
+<span class="sd">        :param key: key of tensor to be renamed</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param new_key: new name for the tensor</span>
+<span class="sd">        :type new_key: str</span>
+<span class="sd">        :raises RedisReplyError: if rename operation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">rename_tensor</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">new_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;rename_tensor&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
 <div class="viewcode-block" id="Client.put_dataset"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.put_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">put_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put a Dataset instance into the database</span>
 
@@ -307,6 +349,46 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;get_dataset&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
 
+<div class="viewcode-block" id="Client.delete_dataset"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.delete_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">delete_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete a dataset within the database</span>
+
+<span class="sd">        :param key: name of the dataset</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :raises RedisReplyError: if deletion fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;delete_dataset&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="Client.copy_dataset"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.copy_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">copy_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">dest_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy a dataset from one key to another</span>
+
+<span class="sd">        :param key: name of dataset to be copied</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param dest_key: new name of dataset</span>
+<span class="sd">        :type dest_key: str</span>
+<span class="sd">        :raises RedisReplyError: if copy operation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">copy_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">dest_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;copy_dataset&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
+<div class="viewcode-block" id="Client.rename_dataset"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.rename_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">rename_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rename a dataset in the database</span>
+
+<span class="sd">        :param key: name of the dataset to be renamed</span>
+<span class="sd">        :type key: str</span>
+<span class="sd">        :param new_key: new name for the dataset</span>
+<span class="sd">        :type new_key: str</span>
+<span class="sd">        :raises RedisReplyError: if rename operation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">rename_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">new_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;rename_dataset&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
+
 <div class="viewcode-block" id="Client.set_function"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.set_function">[docs]</a>    <span class="k">def</span> <span class="nf">set_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;CPU&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set a callable function into the database</span>
 
@@ -335,7 +417,7 @@
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;set_function&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span></div>
 
 <div class="viewcode-block" id="Client.set_script"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.set_script">[docs]</a>    <span class="k">def</span> <span class="nf">set_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;CPU&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Store a TorchScript at key in database</span>
+        <span class="sd">&quot;&quot;&quot;Store a TorchScript at key in the database</span>
 
 <span class="sd">        Device selection is either &quot;GPU&quot; or &quot;CPU&quot;. If many devices are</span>
 <span class="sd">        present, a number can be passed for specification e.g. &quot;GPU:1&quot;.</span>
@@ -543,7 +625,6 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;run_model&quot;</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Client.tensor_exists"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.tensor_exists">[docs]</a>    <span class="k">def</span> <span class="nf">tensor_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if a tensor or dataset exists in the database</span>
 
@@ -557,10 +638,9 @@
 <span class="sd">        :raises RedisReplyError: if `tensor_exists` fails (i.e. causes an error)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">tensor_exists</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">tensor_exists</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;tensor_exists&quot;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Client.model_exists"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.model_exists">[docs]</a>    <span class="k">def</span> <span class="nf">model_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if a model or script exists in the database</span>
@@ -575,10 +655,9 @@
 <span class="sd">        :raises RedisReplyError: if `model_exists` fails (i.e. causes an error)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_exists</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">model_exists</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;model_exists&quot;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Client.key_exists"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.key_exists">[docs]</a>    <span class="k">def</span> <span class="nf">key_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if the key exists in the database</span>
@@ -590,10 +669,9 @@
 <span class="sd">        :raises RedisReplyError: if `key_exists` fails</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">key_exists</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">key_exists</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;key_exists&quot;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Client.poll_key"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.poll_key">[docs]</a>    <span class="k">def</span> <span class="nf">poll_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">poll_frequency_ms</span><span class="p">,</span> <span class="n">num_tries</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if the key exists in the database</span>
@@ -621,7 +699,6 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">poll_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">poll_frequency_ms</span><span class="p">,</span> <span class="n">num_tries</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;poll_key&quot;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Client.poll_tensor"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.poll_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">poll_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">poll_frequency_ms</span><span class="p">,</span> <span class="n">num_tries</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if a tensor or dataset exists in the database</span>
@@ -651,7 +728,6 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;poll_tensor&quot;</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Client.poll_model"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.poll_model">[docs]</a>    <span class="k">def</span> <span class="nf">poll_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">poll_frequency_ms</span><span class="p">,</span> <span class="n">num_tries</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check if a model or script exists in the database</span>
 
@@ -680,7 +756,6 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;poll_model&quot;</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Client.set_data_source"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.set_data_source">[docs]</a>    <span class="k">def</span> <span class="nf">set_data_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the data source (i.e. key prefix for get functions)</span>
 
@@ -693,7 +768,6 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_data_source</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;set_data_source&quot;</span><span class="p">)</span></div>
-
 
 <div class="viewcode-block" id="Client.use_model_ensemble_prefix"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.use_model_ensemble_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">use_model_ensemble_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_prefix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set whether model and script keys should be prefixed</span>
@@ -715,7 +789,6 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;use_model_ensemble_prefix&quot;</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="Client.use_tensor_ensemble_prefix"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.use_tensor_ensemble_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">use_tensor_ensemble_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_prefix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set whether tensor and dataset keys should be prefixed</span>
 
@@ -736,6 +809,57 @@
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;use_tensor_ensemble_prefix&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Client.get_db_node_info"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.get_db_node_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_node_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addresses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns information about given database nodes</span>
+
+<span class="sd">        :param addresses: The addresses of the database nodes</span>
+<span class="sd">        :type address: list[str]</span>
+<span class="sd">        :returns: A list of dictionaries with each entry in the</span>
+<span class="sd">                  list corresponding to an address reply</span>
+<span class="sd">        :rtype: list[dict]</span>
+<span class="sd">        :raises RedisReplyError: if there is an error in</span>
+<span class="sd">                  in command execution or the address</span>
+<span class="sd">                  is not reachable by the client.  </span>
+<span class="sd">                  In the case of using a cluster of database nodes,</span>
+<span class="sd">                  it is best practice to bind each node in the cluster</span>
+<span class="sd">                  to a specific adddress to avoid inconsistencies in</span>
+<span class="sd">                  addresses retreived with the CLUSTER SLOTS command.</span>
+<span class="sd">                  Inconsistencies in node addresses across</span>
+<span class="sd">                  CLUSTER SLOTS comands will lead to RedisReplyError</span>
+<span class="sd">                  being thrown.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_db_node_info</span><span class="p">(</span><span class="n">addresses</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;get_db_node_info&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.get_db_cluster_info"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Client.get_db_cluster_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_db_cluster_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addresses</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns cluster information from a specified db node.</span>
+<span class="sd">        If the address does not correspond to a cluster node,</span>
+<span class="sd">        an empty dictionary is returned.</span>
+
+<span class="sd">        :param addresses: The addresses of the database nodes</span>
+<span class="sd">        :type address: list[str]</span>
+<span class="sd">        :returns: A list of dictionaries with each entry in the</span>
+<span class="sd">                  list corresponding to an address reply</span>
+<span class="sd">        :rtype: list[dict]</span>
+<span class="sd">        :raises RedisReplyError: if there is an error in</span>
+<span class="sd">                  in command execution or the address</span>
+<span class="sd">                  is not reachable by the client.</span>
+<span class="sd">                  In the case of using a cluster of database nodes,</span>
+<span class="sd">                  it is best practice to bind each node in the cluster</span>
+<span class="sd">                  to a specific adddress to avoid inconsistencies in</span>
+<span class="sd">                  addresses retreived with the CLUSTER SLOTS command.</span>
+<span class="sd">                  Inconsistencies in node addresses across</span>
+<span class="sd">                  CLUSTER SLOTS comands will lead to RedisReplyError</span>
+<span class="sd">                  being thrown.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_db_cluster_info</span><span class="p">(</span><span class="n">addresses</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RedisReplyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="s2">&quot;get_db_cluster_info&quot;</span><span class="p">)</span></div>
 
     <span class="c1"># ---- helpers --------------------------------------------------------</span>
 

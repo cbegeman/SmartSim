@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Launchers &mdash; SmartSim 0.3.1 documentation</title>
+  <title>Launchers &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -92,10 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul class="current">
@@ -118,6 +120,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#cobalt">Cobalt</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#running-on-cobalt">Running on Cobalt</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lsf">LSF</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-on-lsf">Running on LSF</a></li>
 </ul>
 </li>
 </ul>
@@ -232,16 +238,17 @@
 <p>SmartSim interfaces with a number of backends called <cite>launchers</cite> that
 are responsible for constructing jobs based on run parameters and
 launching them onto a system.</p>
-<p>The <cite>launchers</cite> allow Smartsim users to interact with their system
+<p>The <cite>launchers</cite> allow SmartSim users to interact with their system
 programmatically through a python interface.
 Because of this, SmartSim users don’t have to leave the Jupyter Notebook,
 Python REPL, or Python script to launch, query, and interact with their jobs.</p>
 <dl class="simple">
-<dt>SmartSim currently supports 4 <cite>launchers</cite>:</dt><dd><ol class="arabic simple">
+<dt>SmartSim currently supports 5 <cite>launchers</cite>:</dt><dd><ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">local</span></code> for single-node, workstation, or laptop</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">slurm</span></code> for systems using the Slurm scheduler</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pbs</span></code> for systems using the PBSpro scheduler</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cobalt</span></code> for systems using the Cobalt scheduler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lsf</span></code> for systems using the LSF scheduler</p></li>
 </ol>
 </dd>
 </dl>
@@ -254,6 +261,7 @@ to the <code class="docutils literal notranslate"><span class="pre">Experiment</
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;name-of-experiment&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;slurm&quot;</span><span class="p">)</span> <span class="c1"># Slurm launcher</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;name-of-experiment&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;pbs&quot;</span><span class="p">)</span> <span class="c1"># PBSpro launcher</span>
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;name-of-experiment&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;cobalt&quot;</span><span class="p">)</span> <span class="c1"># Cobalt launcher</span>
+<span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;name-of-experiment&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;lsf&quot;</span><span class="p">)</span> <span class="c1"># LSF launcher</span>
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -287,10 +295,10 @@ are always executed in parallel but launched sequentially.</p>
 <p>The Slurm launcher works directly with the Slurm scheduler to launch, query,
 monitor and stop applications. During the course of an <code class="docutils literal notranslate"><span class="pre">Experiment</span></code>,
 launched entities can be queried for status, completion, and errors.</p>
-<p>The amount of communication between Smartsim and Slurm can tuned
+<p>The amount of communication between SmartSim and Slurm can be tuned
 for specific guidelines of different sites by setting the
 value for <code class="docutils literal notranslate"><span class="pre">jm_interval</span></code> in the SmartSim configuration file.</p>
-<p>To use the Slurm launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> intialization:</p>
+<p>To use the Slurm launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> initialization:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">smartsim</span> <span class="kn">import</span> <span class="n">Experiment</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;NAMD-worklfow&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;slurm&quot;</span><span class="p">)</span>
@@ -357,7 +365,7 @@ prefix (e.g. <cite>-</cite> or <cite>–</cite>).</p>
 <h3>Releasing Allocations<a class="headerlink" href="#releasing-allocations" title="Permalink to this headline">¶</a></h3>
 <p>The <a class="reference internal" href="api/smartsim_api.html#slurm-module-api"><span class="std std-ref">smartsim.slurm</span></a> interface
 also supports releasing allocations obtained in an experiment.</p>
-<p>The example below releases a the allocation in the example above.</p>
+<p>The example below releases the allocation in the example above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">smartsim</span> <span class="kn">import</span> <span class="n">slurm</span>
 <span class="n">salloc_options</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;haswell&quot;</span><span class="p">,</span>
@@ -378,12 +386,12 @@ also supports releasing allocations obtained in an experiment.</p>
 <hr class="docutils" />
 <div class="section" id="pbspro">
 <h2>PBSPro<a class="headerlink" href="#pbspro" title="Permalink to this headline">¶</a></h2>
-<p>Like, the Slurm launcher the PBSPro launcher works directly with the PBSPro
+<p>Like the Slurm launcher, the PBSPro launcher works directly with the PBSPro
 scheduler to launch, query, monitor and stop applications.</p>
-<p>The amount of communication between Smartsim and PBSPro can tuned
+<p>The amount of communication between SmartSim and PBSPro can be tuned
 for specific guidelines of different sites by setting the
 value for <code class="docutils literal notranslate"><span class="pre">jm_interval</span></code> in the SmartSim configuration file.</p>
-<p>To use the PBSpro launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> intialization:</p>
+<p>To use the PBSpro launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> initialization:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">smartsim</span> <span class="kn">import</span> <span class="n">Experiment</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;LAMMPS-melt&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;pbs&quot;</span><span class="p">)</span>
@@ -412,7 +420,7 @@ creation.</p>
 <h2>Cobalt<a class="headerlink" href="#cobalt" title="Permalink to this headline">¶</a></h2>
 <p>The Cobalt Launcher works just like the PBSPro launcher and
 is compatible with ALPS and OpenMPI workloads as well.</p>
-<p>To use the Cobalt launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> intialization:</p>
+<p>To use the Cobalt launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> initialization:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">smartsim</span> <span class="kn">import</span> <span class="n">Experiment</span>
 
 <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;MOM6-double-gyre&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;cobalt&quot;</span><span class="p">)</span>
@@ -433,6 +441,35 @@ is compatible with ALPS and OpenMPI workloads as well.</p>
 </dl>
 <p>Both supported <code class="docutils literal notranslate"><span class="pre">RunSettings</span></code> types above can be added
 to a <code class="docutils literal notranslate"><span class="pre">CobaltBatchSettings</span></code> batch workload through <code class="docutils literal notranslate"><span class="pre">Ensemble</span></code>
+creation.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="lsf">
+<h2>LSF<a class="headerlink" href="#lsf" title="Permalink to this headline">¶</a></h2>
+<p>The LSF Launcher works like the PBSPro and Cobalt launchers and
+is compatible with LSF and OpenMPI workloads.</p>
+<p>To use the LSF launcher, specify at <code class="docutils literal notranslate"><span class="pre">Experiment</span></code> initialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">smartsim</span> <span class="kn">import</span> <span class="n">Experiment</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span><span class="s2">&quot;MOM6-double-gyre&quot;</span><span class="p">,</span> <span class="n">launcher</span><span class="o">=</span><span class="s2">&quot;lsf&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="running-on-lsf">
+<h3>Running on LSF<a class="headerlink" href="#running-on-lsf" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>The LSF launcher supports two types of <code class="docutils literal notranslate"><span class="pre">RunSettings</span></code>:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="api/smartsim_api.html#jsrun-api"><span class="std std-ref">JsrunSettings</span></a></p></li>
+<li><p><a class="reference internal" href="api/smartsim_api.html#openmpi-api"><span class="std std-ref">MpirunSettings</span></a></p></li>
+</ol>
+</dd>
+<dt>As well as batch settings for <code class="docutils literal notranslate"><span class="pre">bsub</span></code> through:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="api/smartsim_api.html#bsub-api"><span class="std std-ref">BsubBatchSettings</span></a></p></li>
+</ol>
+</dd>
+</dl>
+<p>Both supported <code class="docutils literal notranslate"><span class="pre">RunSettings</span></code> types above can be added
+to a <code class="docutils literal notranslate"><span class="pre">BsubBatchSettings</span></code> batch workload through <code class="docutils literal notranslate"><span class="pre">Ensemble</span></code>
 creation.</p>
 </div>
 </div>

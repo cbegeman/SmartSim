@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.entity.model &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.entity.model &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -206,7 +208,7 @@
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">from</span> <span class="nn">..error</span> <span class="kn">import</span> <span class="n">SSConfigError</span>
+<span class="kn">from</span> <span class="nn">..error</span> <span class="kn">import</span> <span class="n">EntityExistsError</span>
 <span class="kn">from</span> <span class="nn">..utils.helpers</span> <span class="kn">import</span> <span class="n">init_default</span>
 <span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">SmartSimEntity</span>
 <span class="kn">from</span> <span class="nn">.files</span> <span class="kn">import</span> <span class="n">EntityFiles</span>
@@ -223,7 +225,7 @@
 <span class="sd">        :param path: path to output, error, and configuration files</span>
 <span class="sd">        :type path: str</span>
 <span class="sd">        :param run_settings: launcher settings specified in the experiment</span>
-<span class="sd">        :type run_settings: dict</span>
+<span class="sd">        :type run_settings: RunSettings</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">run_settings</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -239,12 +241,13 @@
 <span class="sd">        with that entity</span>
 
 <span class="sd">        :param incoming_entity: The entity that data will be received from</span>
-<span class="sd">        :param incoming_entity: SmartSimEntity</span>
+<span class="sd">        :type incoming_entity: SmartSimEntity</span>
+<span class="sd">        :raises SmartSimError: if incoming entity has already been registered</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">incoming_entity</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">[</span>
             <span class="n">in_entity</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">in_entity</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incoming_entities</span>
         <span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">SSConfigError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">EntityExistsError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">incoming_entity</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has already &quot;</span>
                 <span class="o">+</span> <span class="s2">&quot;been registered as an incoming entity&quot;</span>
             <span class="p">)</span>
@@ -269,7 +272,7 @@
 <span class="sd">        Attach files needed for the entity that, upon generation,</span>
 <span class="sd">        will be located in the path of the entity.</span>
 
-<span class="sd">        During generation files &quot;to_copy&quot; are just copied into</span>
+<span class="sd">        During generation, files &quot;to_copy&quot; are copied into</span>
 <span class="sd">        the path of the entity, and files &quot;to_symlink&quot; are</span>
 <span class="sd">        symlinked into the path of the entity.</span>
 

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.settings.settings &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.settings.settings &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -240,13 +242,13 @@
 
 <span class="sd">        :param exe: executable to run</span>
 <span class="sd">        :type exe: str</span>
-<span class="sd">        :param exe_args: executable arguments</span>
+<span class="sd">        :param exe_args: executable arguments, defaults to None</span>
 <span class="sd">        :type exe_args: str | list[str], optional</span>
-<span class="sd">        :param run_command: launch binary e.g. srun</span>
+<span class="sd">        :param run_command: launch binary (e.g. &quot;srun&quot;), defaults to empty str</span>
 <span class="sd">        :type run_command: str, optional</span>
-<span class="sd">        :param run_args: arguments for run command (e.g. `-np` for `mpiexec`)</span>
+<span class="sd">        :param run_args: arguments for run command (e.g. `-np` for `mpiexec`), defaults to None</span>
 <span class="sd">        :type run_args: dict[str, str], optional</span>
-<span class="sd">        :param env_vars: environment vars to launch job with</span>
+<span class="sd">        :param env_vars: environment vars to launch job with, defaults to None</span>
 <span class="sd">        :type env_vars: dict[str, str], optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exe</span> <span class="o">=</span> <span class="p">[</span><span class="n">expand_exe_path</span><span class="p">(</span><span class="n">exe</span><span class="p">)]</span>
@@ -283,7 +285,7 @@
         <span class="sd">&quot;&quot;&quot;Add executable arguments to executable</span>
 
 <span class="sd">        :param args: executable arguments</span>
-<span class="sd">        :type args: list[str]</span>
+<span class="sd">        :type args: str | list[str]</span>
 <span class="sd">        :raises TypeError: if exe args are not strings</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -298,9 +300,20 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exe_args</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">exe_args</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exe_args</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="n">correct_type</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">))</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">exe_args</span><span class="p">])</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">correct_type</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Executable arguments were not list of str or str&quot;</span><span class="p">)</span>
+                <span class="n">plain_type</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">))</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">exe_args</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">plain_type</span><span class="p">:</span>
+                    <span class="n">nested_type</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">))</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">exe_args_list</span><span class="p">])</span>
+                            <span class="k">for</span> <span class="n">exe_args_list</span> <span class="ow">in</span> <span class="n">exe_args</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">nested_type</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Executable arguments were not list of str or str&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">exe_args</span>
                 <span class="k">return</span> <span class="n">exe_args</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Executable arguments were not list of str or str&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -335,13 +348,15 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_cmd</span><span class="p">,</span> <span class="n">batch_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_cmd</span> <span class="o">=</span> <span class="n">batch_cmd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_args</span> <span class="o">=</span> <span class="n">init_default</span><span class="p">({},</span> <span class="n">batch_args</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">batch_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the batch command</span>
 
 <span class="sd">        Tests to see if we can expand the batch command</span>
-<span class="sd">        path, and if not, returns the batch command as is</span>
+<span class="sd">        path. If we can, then returns the expanded batch</span>
+<span class="sd">        command. If we cannot, returns the batch command as is.</span>
 
 <span class="sd">        :returns: batch command</span>
 <span class="sd">        :type: str</span>
@@ -371,6 +386,22 @@
 <span class="sd">        :type command: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_cmd</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">add_preamble</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add lines to the batch file preamble. The lines are just</span>
+<span class="sd">        written (unmodified) at the beginning of the batch file</span>
+<span class="sd">        (after the WLM directives) and can be used to e.g.</span>
+<span class="sd">        start virtual environments before running the executables.</span>
+
+<span class="sd">        :param line: lines to add to preamble.</span>
+<span class="sd">        :type line: str or list[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span> <span class="o">+=</span> <span class="p">[</span><span class="n">lines</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preamble</span> <span class="o">+=</span> <span class="n">lines</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Batch Command: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_cmd</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>

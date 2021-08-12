@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Introduction &mdash; SmartSim 0.3.1 documentation</title>
+  <title>Introduction &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -99,10 +99,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -224,7 +226,7 @@
 <li><p>Automating the deployment of HPC workloads and distributed, in-memory, storage (Redis)</p></li>
 <li><p>Making TensorFlow, Pytorch, and ONNX callable from Fortran, C, and C++ simulations.</p></li>
 <li><p>Providing flexible data communication and formats for hierarchical data enabling online
-anaylsis, visualization, and processing of simulation data.</p></li>
+analysis, visualization, and processing of simulation data.</p></li>
 </ol>
 </div></blockquote>
 <p>The main goal of SmartSim is to provide scientists a flexible, easy to use method for
@@ -264,7 +266,7 @@ deploying HPC workloads alongside an in-memory database: Redis.</p>
 <li><p>An API to start, monitor, and stop HPC jobs from Python or Jupyter notebook.</p></li>
 <li><p>Automated deployment of in-memory data staging (Redis) and computational
 storage (RedisAI)</p></li>
-<li><p>Programmatic launches of batch and in-allocation jobs on PBS, Slurm,
+<li><p>Programmatic launches of batch and in-allocation jobs on PBS, Slurm, LSF,
 and Cobalt systems.</p></li>
 <li><p>Creating and configuring ensembles of workloads with isolated communication channels.</p></li>
 </ul>
@@ -273,7 +275,7 @@ and Cobalt systems.</p></li>
 allocations. The IL integrates with workload managers (like Slurm and PBS),
 if it’s running on a supercomputer or cluster system.</p>
 <p>The IL can deploy a distributed, shared-nothing, in-memory cluster of Redis
-instances accross multiple compute nodes of a supercomputer, cluster, or laptop
+instances across multiple compute nodes of a supercomputer, cluster, or laptop
 In SmartSim, this clustered Redis deployment is called the <code class="docutils literal notranslate"><span class="pre">Orchestrator</span></code>.</p>
 <p>By coupling the Orchestrator with HPC applications, users can connect their
 workloads to other applications, like trained machine learning models, with
@@ -329,7 +331,7 @@ below summarizes the language standards for each client.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Python</p></td>
-<td><p>3.7</p></td>
+<td><p>3.7, 3.8, 3.9</p></td>
 </tr>
 <tr class="row-odd"><td><p>C++</p></td>
 <td><p>C++17</p></td>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.settings.alpsSettings &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.settings.alpsSettings &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -231,7 +233,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mpmd</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="AprunSettings.make_mpmd"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.settings.AprunSettings.make_mpmd">[docs]</a>    <span class="k">def</span> <span class="nf">make_mpmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aprun_settings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Make job a MPMD job</span>
+        <span class="sd">&quot;&quot;&quot;Make job an MPMD job</span>
 
 <span class="sd">        This method combines two ``AprunSettings``</span>
 <span class="sd">        into a single MPMD command joined with &#39;:&#39;</span>
@@ -275,8 +277,8 @@
         <span class="sd">&quot;&quot;&quot;Specify the hostlist for this job</span>
 
 <span class="sd">        :param host_list: hosts to launch on</span>
-<span class="sd">        :type host_list: list[str]</span>
-<span class="sd">        :raises TypeError:</span>
+<span class="sd">        :type host_list: str | list[str]</span>
+<span class="sd">        :raises TypeError: if not str or list of str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">host_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">host_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">host_list</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
@@ -284,12 +286,12 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;host_list argument must be a list of strings&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">host_list</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;host_list argument must be list of strings&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;nodelist&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">host_list</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;node-list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">host_list</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AprunSettings.format_run_args"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.settings.AprunSettings.format_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">format_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of ALPS formatted run arguments</span>
 
-<span class="sd">        :return: list ALPS arguments for these settings</span>
+<span class="sd">        :return: list of ALPS arguments for these settings</span>
 <span class="sd">        :rtype: list[str]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># args launcher uses</span>

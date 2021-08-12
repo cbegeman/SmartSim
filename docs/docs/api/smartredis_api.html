@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>SmartRedis API &mdash; SmartSim 0.3.1 documentation</title>
+  <title>SmartRedis API &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -92,10 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -258,17 +260,35 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.get_tensor" title="smartredis.Client.get_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_tensor</span></code></a>(key)</p></td>
 <td><p>Get a tensor from the database</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.put_dataset" title="smartredis.Client.put_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.put_dataset</span></code></a>(dataset)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.delete_tensor" title="smartredis.Client.delete_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.delete_tensor</span></code></a>(key)</p></td>
+<td><p>Delete a tensor within the database</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.copy_tensor" title="smartredis.Client.copy_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.copy_tensor</span></code></a>(key, dest_key)</p></td>
+<td><p>Copy a tensor at one key to another key</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.rename_tensor" title="smartredis.Client.rename_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.rename_tensor</span></code></a>(key, new_key)</p></td>
+<td><p>Rename a tensor in the database</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.put_dataset" title="smartredis.Client.put_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.put_dataset</span></code></a>(dataset)</p></td>
 <td><p>Put a Dataset instance into the database</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.get_dataset" title="smartredis.Client.get_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_dataset</span></code></a>(key)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.get_dataset" title="smartredis.Client.get_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.get_dataset</span></code></a>(key)</p></td>
 <td><p>Get a dataset from the database</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.delete_dataset" title="smartredis.Client.delete_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.delete_dataset</span></code></a>(key)</p></td>
+<td><p>Delete a dataset within the database</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.copy_dataset" title="smartredis.Client.copy_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.copy_dataset</span></code></a>(key, dest_key)</p></td>
+<td><p>Copy a dataset from one key to another</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.rename_dataset" title="smartredis.Client.rename_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.rename_dataset</span></code></a>(key, new_key)</p></td>
+<td><p>Rename a dataset in the database</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.set_function" title="smartredis.Client.set_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_function</span></code></a>(key, function[, device])</p></td>
 <td><p>Set a callable function into the database</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Client.set_script" title="smartredis.Client.set_script"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_script</span></code></a>(key, script[, device])</p></td>
-<td><p>Store a TorchScript at key in database</p></td>
+<td><p>Store a TorchScript at key in the database</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Client.set_script_from_file" title="smartredis.Client.set_script_from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Client.set_script_from_file</span></code></a>(key, file[, device])</p></td>
 <td><p>Same as Client.set_script but from file</p></td>
@@ -326,7 +346,7 @@
 of a database node. The rest of the cluster will be discovered
 by the client itself. (e.g. address=”127.0.0.1:6379”)</p>
 <p>If an address is not set, the client will look for the environment
-variable <code class="docutils literal notranslate"><span class="pre">$SSDB</span></code> (e.g. SSDB=”127.0.0.1:6379;”)</p>
+variable <code class="docutils literal notranslate"><span class="pre">SSDB</span></code> (e.g. SSDB=”127.0.0.1:6379;”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -338,6 +358,68 @@ variable <code class="docutils literal notranslate"><span class="pre">$SSDB</spa
 <dd class="field-even"><p><strong>RedisConnectionError</strong> – if connection initialization fails</p>
 </dd>
 </dl>
+<dl class="py method">
+<dt id="smartredis.Client.copy_dataset">
+<code class="sig-name descname">copy_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">dest_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.copy_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.copy_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy a dataset from one key to another</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – name of dataset to be copied</p></li>
+<li><p><strong>dest_key</strong> (<em>str</em>) – new name of dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if copy operation fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.copy_tensor">
+<code class="sig-name descname">copy_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">dest_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.copy_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.copy_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy a tensor at one key to another key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – key of tensor to be copied</p></li>
+<li><p><strong>dest_key</strong> (<em>str</em>) – key to store new copy at</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if copy operation fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.delete_dataset">
+<code class="sig-name descname">delete_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.delete_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.delete_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a dataset within the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – name of the dataset</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if deletion fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.delete_tensor">
+<code class="sig-name descname">delete_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.delete_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.delete_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a tensor within the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – key tensor is stored at</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if deletion fails</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="smartredis.Client.get_dataset">
 <code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.get_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.get_dataset" title="Permalink to this definition">¶</a></dt>
@@ -354,6 +436,68 @@ variable <code class="docutils literal notranslate"><span class="pre">$SSDB</spa
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#smartredis.Dataset" title="smartredis.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.get_db_cluster_info">
+<code class="sig-name descname">get_db_cluster_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addresses</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.get_db_cluster_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.get_db_cluster_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns cluster information from a specified db node.
+If the address does not correspond to a cluster node,
+an empty dictionary is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addresses</strong> – The addresses of the database nodes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dictionaries with each entry in the
+list corresponding to an address reply</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if there is an error in
+in command execution or the address
+is not reachable by the client.
+In the case of using a cluster of database nodes,
+it is best practice to bind each node in the cluster
+to a specific adddress to avoid inconsistencies in
+addresses retreived with the CLUSTER SLOTS command.
+Inconsistencies in node addresses across
+CLUSTER SLOTS comands will lead to RedisReplyError
+being thrown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.get_db_node_info">
+<code class="sig-name descname">get_db_node_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addresses</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.get_db_node_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.get_db_node_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about given database nodes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>addresses</strong> – The addresses of the database nodes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dictionaries with each entry in the
+list corresponding to an address reply</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if there is an error in
+in command execution or the address
+is not reachable by the client.
+In the case of using a cluster of database nodes,
+it is best practice to bind each node in the cluster
+to a specific adddress to avoid inconsistencies in
+addresses retreived with the CLUSTER SLOTS command.
+Inconsistencies in node addresses across
+CLUSTER SLOTS comands will lead to RedisReplyError
+being thrown.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -595,6 +739,40 @@ instance will also be stored.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="smartredis.Client.rename_dataset">
+<code class="sig-name descname">rename_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">new_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.rename_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.rename_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename a dataset in the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – name of the dataset to be renamed</p></li>
+<li><p><strong>new_key</strong> (<em>str</em>) – new name for the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if rename operation fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="smartredis.Client.rename_tensor">
+<code class="sig-name descname">rename_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">new_key</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.rename_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.rename_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename a tensor in the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – key of tensor to be renamed</p></li>
+<li><p><strong>new_key</strong> (<em>str</em>) – new name for the tensor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>RedisReplyError</strong> – if rename operation fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="smartredis.Client.run_model">
 <code class="sig-name descname">run_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">inputs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outputs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.run_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.run_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute a stored model</p>
@@ -722,7 +900,7 @@ present, a number can be passed for specification e.g. “GPU:1”.</p>
 <dl class="py method">
 <dt id="smartredis.Client.set_script">
 <code class="sig-name descname">set_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">script</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">'CPU'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/client.html#Client.set_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Client.set_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Store a TorchScript at key in database</p>
+<dd><p>Store a TorchScript at key in the database</p>
 <p>Device selection is either “GPU” or “CPU”. If many devices are
 present, a number can be passed for specification e.g. “GPU:1”.</p>
 <dl class="field-list simple">
@@ -833,7 +1011,7 @@ available.</p>
 <td><p>Add a named tensor to this dataset</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#smartredis.Dataset.get_tensor" title="smartredis.Dataset.get_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dataset.get_tensor</span></code></a>(name)</p></td>
-<td><p>Get a tensor from this Dataset</p></td>
+<td><p>Get a tensor from the Dataset</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#smartredis.Dataset.add_meta_scalar" title="smartredis.Dataset.add_meta_scalar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dataset.add_meta_scalar</span></code></a>(name, data)</p></td>
 <td><p>Add metadata scalar field (non-string) with value to the DataSet</p></td>
@@ -938,7 +1116,7 @@ field in the DataSet</p>
 <dl class="py method">
 <dt id="smartredis.Dataset.get_tensor">
 <code class="sig-name descname">get_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/smartredis/dataset.html#Dataset.get_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#smartredis.Dataset.get_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a tensor from this Dataset</p>
+<dd><p>Get a tensor from the Dataset</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of the tensor to get</p>
@@ -1344,7 +1522,7 @@ field in the DataSet</p>
 <dt><strong>Return</strong></dt><dd><p>Returns true if the key exists in the database </p>
 </dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database Depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
 </ul>
 </dd>
 </dl>
@@ -1359,7 +1537,7 @@ field in the DataSet</p>
 <dt><strong>Return</strong></dt><dd><p>Returns true if the key exists in the database </p>
 </dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database Depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
 </ul>
 </dd>
 </dl>
@@ -1408,7 +1586,7 @@ field in the DataSet</p>
 <dt><strong>Return</strong></dt><dd><p>Returns true if the key is found within the specified number of tries, otherwise false. </p>
 </dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database Depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name that will be checked in the database depending on the current prefixing behavior, the name could be automatically prefixed to form the corresponding key. </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">poll_frequency_ms</span></code>: The frequency of checks for the key in milliseconds </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_tries</span></code>: The total number of times to check for the specified number of keys. If the value is set to -1, the key will be polled indefinitely. </p></li>
 </ul>
@@ -1456,6 +1634,43 @@ field in the DataSet</p>
 </p>
 </dd></dl>
 
+<dl class="cpp function">
+<dt id="_CPPv4N10SmartRedis6Client16get_db_node_infoENSt6stringE">
+<span class="target" id="classSmartRedis_1_1Client_1ad6abcf1f9cf7e7044fbc0c1cb3daba5d"></span>parsed_reply_nested_map <code class="sig-name descname">get_db_node_info</code><span class="sig-paren">(</span>std::string <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10SmartRedis6Client16get_db_node_infoENSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">brief</span> <span class="n">Returns</span> <span class="n">information</span> <span class="n">about</span> <span class="n">the</span> <span class="n">given</span> <span class="n">database</span> <span class="n">node</span>
+\<span class="n">param</span> <span class="n">address</span> <span class="n">The</span> <span class="n">address</span> <span class="n">of</span> <span class="n">the</span> <span class="n">database</span> <span class="n">node</span> <span class="p">(</span><span class="n">host</span><span class="p">:</span><span class="n">port</span><span class="p">)</span>
+\<span class="n">returns</span> <span class="n">parsed_reply_nested_map</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">database</span> <span class="n">node</span> <span class="n">information</span>
+</pre></div>
+</div>
+ <dl class="simple">
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::runtime_error</span></code>: if the address is not addressable by this client. In the case of using a cluster of database nodes, it is best practice to bind each node in the cluster to a specific adddress to avoid inconsistencies in addresses retreived with the CLUSTER SLOTS command. Inconsistencies in node addresses across CLUSTER SLOTS comands will lead to std::runtime_error being thrown. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N10SmartRedis6Client19get_db_cluster_infoENSt6stringE">
+<span class="target" id="classSmartRedis_1_1Client_1a4074ae79b5d8cd46e0d7e4b4ecd8b1b5"></span>parsed_reply_map <code class="sig-name descname">get_db_cluster_info</code><span class="sig-paren">(</span>std::string <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10SmartRedis6Client19get_db_cluster_infoENSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">brief</span> <span class="n">Returns</span> <span class="n">the</span> <span class="n">CLUSTER</span> <span class="n">INFO</span> <span class="n">command</span> <span class="n">reply</span> <span class="n">addressed</span> <span class="n">to</span> <span class="n">a</span> <span class="n">single</span>
+       <span class="n">cluster</span> <span class="n">node</span><span class="o">.</span>
+\<span class="n">param</span> <span class="n">address</span> <span class="n">The</span> <span class="n">address</span> <span class="n">of</span> <span class="n">the</span> <span class="n">database</span> <span class="n">node</span> <span class="p">(</span><span class="n">host</span><span class="p">:</span><span class="n">port</span><span class="p">)</span>
+\<span class="n">returns</span> <span class="n">parsed_reply_map</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">database</span> <span class="n">cluster</span> <span class="n">information</span><span class="o">.</span>
+         <span class="n">If</span> <span class="n">this</span> <span class="n">command</span> <span class="ow">is</span> <span class="n">executed</span> <span class="n">on</span> <span class="n">a</span> <span class="n">non</span><span class="o">-</span><span class="n">cluster</span> <span class="n">database</span><span class="p">,</span> <span class="n">an</span>
+         <span class="n">empty</span> <span class="n">parsed_reply_map</span> <span class="ow">is</span> <span class="n">returned</span><span class="o">.</span>
+</pre></div>
+</div>
+ <dl class="simple">
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::runtime_error</span></code>: if the address is not addressable by this client. In the case of using a cluster of database nodes, it is best practice to bind each node in the cluster to a specific adddress to avoid inconsistencies in addresses retreived with the CLUSTER SLOTS command. Inconsistencies in node addresses across CLUSTER SLOTS comands will lead to std::runtime_error being thrown. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
 </div>
 </dd></dl>
 
@@ -1476,21 +1691,6 @@ field in the DataSet</p>
 <p><dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name used to reference the <a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> </p></li>
-</ul>
-</dd>
-</dl>
-</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N10SmartRedis7DataSet7DataSetERKNSt6stringEPc6size_t">
-<span class="target" id="classSmartRedis_1_1DataSet_1a205f4362b13e7873953d730003d24c0d"></span><code class="sig-name descname">DataSet</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em>, char *<em>buf</em>, size_t <em>buf_size</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10SmartRedis7DataSet7DataSetERKNSt6stringEPc6size_t" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p><a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> constructor that builds the object from a database buffer stream. </p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name used to reference the <a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">buf</span></code>: The buffer used for object construction </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">buf_size</span></code>: The length of the buffer </p></li>
 </ul>
 </dd>
 </dl>
@@ -1692,6 +1892,21 @@ field in the DataSet</p>
 </dd></dl>
 
 <dl class="cpp function">
+<dt id="_CPPv4N10SmartRedis7DataSet9has_fieldERKNSt6stringE">
+<span class="target" id="classSmartRedis_1_1DataSet_1a40c3223ce5c97aa3470291eb82a20e59"></span>bool <code class="sig-name descname">has_field</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>field_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10SmartRedis7DataSet9has_fieldERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This function checks if the <a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> has a field. </p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>Boolean indicating if the <a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> has the field. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">field_name</span></code>: The name of the field to check </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt id="_CPPv4N10SmartRedis7DataSet11clear_fieldERKNSt6stringE">
 <span class="target" id="classSmartRedis_1_1DataSet_1a1c051195a518f7ec94c26516efbbd02a"></span>void <code class="sig-name descname">clear_field</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>field_name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10SmartRedis7DataSet11clear_fieldERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>This function clears all entries in a <a class="reference internal" href="#classSmartRedis_1_1DataSet"><span class="std std-ref">DataSet</span></a> field. </p>
@@ -1732,6 +1947,11 @@ field in the DataSet</p>
 <em class="property">friend class</em> Client</dt>
 </dl>
 
+<dl class="friendclass">
+<dt>
+<em class="property">friend class</em> PyDataset</dt>
+</dl>
+
 </div>
 </dd></dl>
 
@@ -1749,6 +1969,8 @@ field in the DataSet</p>
 <span class="target" id="c__client_8h_1ae898be255bf2ce1e75d56f6cfaefad7d"></span>void *<code class="sig-name descname">SmartRedisCClient</code><span class="sig-paren">(</span>bool <em>cluster</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417SmartRedisCClientb" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>C-client constructor. </p>
 <p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>Returns NULL on failure </p>
+</dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cluster</span></code>: Flag to indicate if a database cluster is being used </p></li>
 </ul>
@@ -1771,8 +1993,8 @@ field in the DataSet</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv411put_datasetPvPKv">
-<span class="target" id="c__client_8h_1a480fad0dcfccd9c092daf7386f6c71ed"></span>void <code class="sig-name descname">put_dataset</code><span class="sig-paren">(</span>void *<em>c_client</em>, <em class="property">const</em> void *<em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411put_datasetPvPKv" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv411put_datasetPvPv">
+<span class="target" id="c__client_8h_1a3ff008a63f09c3cfd68f783ee1ec08bf"></span>void <code class="sig-name descname">put_dataset</code><span class="sig-paren">(</span>void *<em>c_client</em>, void *<em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411put_datasetPvPv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Put a DataSet object into the database. </p>
 <p><dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
@@ -1789,6 +2011,8 @@ field in the DataSet</p>
 <span class="target" id="c__client_8h_1abb28c5a66c99fe1f000c24712ec8c020"></span>void *<code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span>void *<em>c_client</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411get_datasetPvPKcK6size_t" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Get a DataSet object from the database. </p>
 <p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>Returns NULL on bad parameters </p>
+</dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">c_client</span></code>: A pointer to c client to use for communication </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name of the dataset object to fetch </p></li>
@@ -1969,7 +2193,7 @@ field in the DataSet</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">model_file</span></code>: The source file for the model </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">model_file_length</span></code>: The length of the model_file c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">backend</span></code>: The name of the backend (TF, TFLITE, TORCH, ONNX) </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">backed_length</span></code>: The length of the backend c-string, excluding null terminating character </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">backend_length</span></code>: The length of the backend c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">device</span></code>: The name of the device for execution (e.g. CPU or GPU) </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">device_length</span></code>: The length of the device c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: The batch size for model execution </p></li>
@@ -2000,7 +2224,7 @@ field in the DataSet</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>: The model as a continuous buffer </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">model_length</span></code>: The length of the model c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">backend</span></code>: The name of the backend (TF, TFLITE, TORCH, ONNX) </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">backed_length</span></code>: The length of the backend c-string, excluding null terminating character </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">backend_length</span></code>: The length of the backend c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">device</span></code>: The name of the device for execution (e.g. CPU or GPU) </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">device_length</span></code>: The length of the device c-string, excluding null terminating character </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: The batch size for model execution </p></li>
@@ -2024,7 +2248,7 @@ field in the DataSet</p>
 <span class="target" id="c__client_8h_1a8f4b6504362c0e2c262e51719b48b12c"></span><em class="property">const</em> char *<code class="sig-name descname">get_model</code><span class="sig-paren">(</span>void *<em>c_client</em>, <em class="property">const</em> char *<em>key</em>, <em class="property">const</em> size_t <em>key_length</em>, size_t *<em>model_length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49get_modelPvPKcK6size_tP6size_t" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Get a model in the database. </p>
 <p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>The model as a c-string </p>
+<dt><strong>Return</strong></dt><dd><p>The model as a c-string or NULL on bad parameters </p>
 </dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">c_client</span></code>: A pointer to c client to use for communication </p></li>
@@ -2294,6 +2518,8 @@ field in the DataSet</p>
 <span class="target" id="c__dataset_8h_1a2d65ae4249fefddee9a329405527b562"></span>void *<code class="sig-name descname">CDataSet</code><span class="sig-paren">(</span><em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48CDataSetPKcK6size_t" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>C-DataSet constructor. </p>
 <p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>Returns NULL on failure </p>
+</dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name of the dataset </p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">name_length</span></code>: The length of the dataset name c-string, excluding null terminating character </p></li>
@@ -2304,8 +2530,21 @@ field in the DataSet</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv410add_tensorPvPKcK6size_tPvPK6size_tK6size_t11CTensorType13CMemoryLayout">
-<span class="target" id="c__dataset_8h_1a4341aabafd6fe5c6effc15e561e7a498"></span>void <code class="sig-name descname">add_tensor</code><span class="sig-paren">(</span>void *<em>dataset</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em>, void *<em>data</em>, <em class="property">const</em> size_t *<em>dims</em>, <em class="property">const</em> size_t <em>n_dims</em>, CTensorType <em>type</em>, CMemoryLayout <em>mem_layout</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410add_tensorPvPKcK6size_tPvPK6size_tK6size_t11CTensorType13CMemoryLayout" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv418DeallocateeDataSetPv">
+<span class="target" id="c__dataset_8h_1a573c2e9230b3292b6124171990f7b62d"></span>void <code class="sig-name descname">DeallocateeDataSet</code><span class="sig-paren">(</span>void *<em>dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418DeallocateeDataSetPv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>C-DataSet destructor. </p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: A c-ptr to receive the dataset object </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv410add_tensorPvPKcK6size_tPvPK6size_tK6size_tK11CTensorTypeK13CMemoryLayout">
+<span class="target" id="c__dataset_8h_1abed9738e56c7b7e5aaef6f6b006ec71d"></span>void <code class="sig-name descname">add_tensor</code><span class="sig-paren">(</span>void *<em>dataset</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em>, void *<em>data</em>, <em class="property">const</em> size_t *<em>dims</em>, <em class="property">const</em> size_t <em>n_dims</em>, <em class="property">const</em> CTensorType <em>type</em>, <em class="property">const</em> CMemoryLayout <em>mem_layout</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410add_tensorPvPKcK6size_tPvPK6size_tK6size_tK11CTensorTypeK13CMemoryLayout" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Add a tensor to the DataSet. </p>
 <p><dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
@@ -2324,8 +2563,8 @@ field in the DataSet</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv415add_meta_scalarPvPKcK6size_tPKv13CMetaDataType">
-<span class="target" id="c__dataset_8h_1a2a593d6f3dcbd64c1e95b87ea0e525d4"></span>void <code class="sig-name descname">add_meta_scalar</code><span class="sig-paren">(</span>void *<em>dataset</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em>, <em class="property">const</em> void *<em>data</em>, CMetaDataType <em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415add_meta_scalarPvPKcK6size_tPKv13CMetaDataType" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv415add_meta_scalarPvPKcK6size_tPKvK13CMetaDataType">
+<span class="target" id="c__dataset_8h_1a182dd63514c4509ac53a196586c93f22"></span>void <code class="sig-name descname">add_meta_scalar</code><span class="sig-paren">(</span>void *<em>dataset</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em>, <em class="property">const</em> void *<em>data</em>, <em class="property">const</em> CMetaDataType <em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415add_meta_scalarPvPKcK6size_tPKvK13CMetaDataType" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Add metadata scalar field (non-string) with value to the DataSet. If the field does not exist, it will be created. If the field exists, the value will be appended to existing field. </p>
 <p><dl class="simple">
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
@@ -2402,7 +2641,7 @@ field in the DataSet</p>
 <span class="target" id="c__dataset_8h_1a1726f7cb899c4660f3df02de4e3e0cea"></span>void *<code class="sig-name descname">get_meta_scalars</code><span class="sig-paren">(</span>void *<em>dataset</em>, <em class="property">const</em> char *<em>name</em>, <em class="property">const</em> size_t <em>name_length</em>, size_t *<em>length</em>, CMetaDataType *<em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416get_meta_scalarsPvPKcK6size_tP6size_tP13CMetaDataType" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Get the metadata scalar field values from the DataSet. The data pointer reference will be pointed to newly allocated memory that will contain all values in the metadata field. The length variable will be set to the number of entries in the allocated memory space to allow for iteration over the values. The TensorType enum will be set to the type of the MetaData field. </p>
 <p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A c-ptr to newly allocated memory containing the metadata </p>
+<dt><strong>Return</strong></dt><dd><p>A c-ptr to newly allocated memory containing the metadata or NULL on bad parameters </p>
 </dd>
 <dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: A c-ptr to the dataset object </p></li>
@@ -2450,7 +2689,7 @@ field in the DataSet</p>
 <span class="target" id="f/smartredis_client"></span><p class="rubric">Quick access</p>
 <dl class="field-list simple">
 <dt class="field-odd">Routines</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#f/smartredis_client/copy_dataset" title="f/smartredis_client/copy_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">copy_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/copy_tensor" title="f/smartredis_client/copy_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">copy_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/delete_dataset" title="f/smartredis_client/delete_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">delete_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/delete_tensor" title="f/smartredis_client/delete_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">delete_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/destructor" title="f/smartredis_client/destructor"><code class="xref f f-func docutils literal notranslate"><span class="pre">destructor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_dataset" title="f/smartredis_client/get_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_model" title="f/smartredis_client/get_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_script" title="f/smartredis_client/get_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/key_exists" title="f/smartredis_client/key_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">key_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/model_exists" title="f/smartredis_client/model_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">model_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_key" title="f/smartredis_client/poll_key"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_key()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_model" title="f/smartredis_client/poll_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_tensor" title="f/smartredis_client/poll_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_dataset" title="f/smartredis_client/put_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_double" title="f/smartredis_client/put_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_float" title="f/smartredis_client/put_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i16" title="f/smartredis_client/put_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i32" title="f/smartredis_client/put_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i64" title="f/smartredis_client/put_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i8" title="f/smartredis_client/put_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/rename_dataset" title="f/smartredis_client/rename_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">rename_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/rename_tensor" title="f/smartredis_client/rename_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">rename_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/run_model" title="f/smartredis_client/run_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">run_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/run_script" title="f/smartredis_client/run_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">run_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_data_source" title="f/smartredis_client/set_data_source"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_data_source()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_model" title="f/smartredis_client/set_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_model_from_file" title="f/smartredis_client/set_model_from_file"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_model_from_file()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_script" title="f/smartredis_client/set_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_script_from_file" title="f/smartredis_client/set_script_from_file"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_script_from_file()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/tensor_exists" title="f/smartredis_client/tensor_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">tensor_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_double" title="f/smartredis_client/unpack_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_float" title="f/smartredis_client/unpack_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i16" title="f/smartredis_client/unpack_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i32" title="f/smartredis_client/unpack_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i64" title="f/smartredis_client/unpack_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i8" title="f/smartredis_client/unpack_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/use_model_ensemble_prefix" title="f/smartredis_client/use_model_ensemble_prefix"><code class="xref f f-func docutils literal notranslate"><span class="pre">use_model_ensemble_prefix()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/use_tensor_ensemble_prefix" title="f/smartredis_client/use_tensor_ensemble_prefix"><code class="xref f f-func docutils literal notranslate"><span class="pre">use_tensor_ensemble_prefix()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#f/smartredis_client/copy_dataset" title="f/smartredis_client/copy_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">copy_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/copy_tensor" title="f/smartredis_client/copy_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">copy_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/delete_dataset" title="f/smartredis_client/delete_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">delete_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/delete_tensor" title="f/smartredis_client/delete_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">delete_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/destructor" title="f/smartredis_client/destructor"><code class="xref f f-func docutils literal notranslate"><span class="pre">destructor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_dataset" title="f/smartredis_client/get_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_model" title="f/smartredis_client/get_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/get_script" title="f/smartredis_client/get_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/initialize_client" title="f/smartredis_client/initialize_client"><code class="xref f f-func docutils literal notranslate"><span class="pre">initialize_client()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/isinitialized" title="f/smartredis_client/isinitialized"><code class="xref f f-func docutils literal notranslate"><span class="pre">isinitialized()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/key_exists" title="f/smartredis_client/key_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">key_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/model_exists" title="f/smartredis_client/model_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">model_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_key" title="f/smartredis_client/poll_key"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_key()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_model" title="f/smartredis_client/poll_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/poll_tensor" title="f/smartredis_client/poll_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">poll_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_dataset" title="f/smartredis_client/put_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_double" title="f/smartredis_client/put_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_float" title="f/smartredis_client/put_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i16" title="f/smartredis_client/put_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i32" title="f/smartredis_client/put_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i64" title="f/smartredis_client/put_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/put_tensor_i8" title="f/smartredis_client/put_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">put_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/rename_dataset" title="f/smartredis_client/rename_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">rename_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/rename_tensor" title="f/smartredis_client/rename_tensor"><code class="xref f f-func docutils literal notranslate"><span class="pre">rename_tensor()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/run_model" title="f/smartredis_client/run_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">run_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/run_script" title="f/smartredis_client/run_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">run_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_data_source" title="f/smartredis_client/set_data_source"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_data_source()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_model" title="f/smartredis_client/set_model"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_model()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_model_from_file" title="f/smartredis_client/set_model_from_file"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_model_from_file()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_script" title="f/smartredis_client/set_script"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_script()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/set_script_from_file" title="f/smartredis_client/set_script_from_file"><code class="xref f f-func docutils literal notranslate"><span class="pre">set_script_from_file()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/tensor_exists" title="f/smartredis_client/tensor_exists"><code class="xref f f-func docutils literal notranslate"><span class="pre">tensor_exists()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_double" title="f/smartredis_client/unpack_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_float" title="f/smartredis_client/unpack_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i16" title="f/smartredis_client/unpack_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i32" title="f/smartredis_client/unpack_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i64" title="f/smartredis_client/unpack_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/unpack_tensor_i8" title="f/smartredis_client/unpack_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/use_model_ensemble_prefix" title="f/smartredis_client/use_model_ensemble_prefix"><code class="xref f f-func docutils literal notranslate"><span class="pre">use_model_ensemble_prefix()</span></code></a>, <a class="reference internal" href="#f/smartredis_client/use_tensor_ensemble_prefix" title="f/smartredis_client/use_tensor_ensemble_prefix"><code class="xref f f-func docutils literal notranslate"><span class="pre">use_tensor_ensemble_prefix()</span></code></a></p>
 </dd>
 </dl>
 <p class="rubric">Needed modules</p>
@@ -2469,6 +2708,7 @@ field in the DataSet</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><code class="sig-name descname">% </code><code class="sig-name descname">client_ptr</code><em> [</em><em>c_ptr</em><em>,</em><em>private/optional/default=c_null_ptr</em><em>]</em></p></li>
 <li><p><code class="sig-name descname">% </code><code class="sig-name descname">cluster</code><em> [</em><em>logical</em><em>,</em><em>private/optional/default=.false.</em><em>]</em></p></li>
+<li><p><code class="sig-name descname">% </code><code class="sig-name descname">is_initialized</code><em> [</em><em>logical</em><em>,</em><em>private/optional/default=.false.</em><em>]</em></p></li>
 </ul>
 </dd>
 </dl>
@@ -2478,36 +2718,49 @@ field in the DataSet</p>
 </ul>
 <p class="rubric">Subroutines and functions</p>
 <dl class="subroutine">
-<dt id="f/smartredis_client/initialize">
-<em class="property">subroutine  </em><code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">this</em><span class="optional">[</span>, <em class="sig-param">cluster</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/initialize" title="Permalink to this definition">¶</a></dt>
+<dt id="f/smartredis_client/initialize_client">
+<em class="property">subroutine  </em><code class="sig-name descname">initialize_client</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="optional">[</span>, <em class="sig-param">cluster</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/initialize_client" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>cluster</strong><em> [</em><em>logical</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; Receives the initialized client</p></li>
+<li><p><strong>cluster</strong><em> [</em><em>logical</em><em>,</em><em>in,</em><em>]</em> :: &lt; If true, client uses a database cluster (Default: .false.)</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="f/smartredis_client/isinitialized">
+<em class="property">function  </em><code class="sig-name descname">isinitialized</code><span class="sig-paren">(</span><em class="sig-param">this</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/isinitialized" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p>
+</dd>
+<dt class="field-even">Return</dt>
+<dd class="field-even"><p><strong>isinitialized</strong><em> [</em><em>logical</em><em>]</em></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/destructor">
-<em class="property">subroutine  </em><code class="sig-name descname">destructor</code><span class="sig-paren">(</span><em class="sig-param">this</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/destructor" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">destructor</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/destructor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p>
+<dd class="field-odd"><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="f/smartredis_client/key_exists">
-<em class="property">function  </em><code class="sig-name descname">key_exists</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/key_exists" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">key_exists</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/key_exists" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>key</strong><em> [</em><em>character</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to check</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2518,12 +2771,12 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/model_exists">
-<em class="property">function  </em><code class="sig-name descname">model_exists</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">model_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/model_exists" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">model_exists</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">model_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/model_exists" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>model_name</strong><em> [</em><em>character</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>model_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The model to check</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2534,12 +2787,12 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/tensor_exists">
-<em class="property">function  </em><code class="sig-name descname">tensor_exists</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">tensor_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/tensor_exists" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">tensor_exists</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">tensor_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/tensor_exists" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>tensor_name</strong><em> [</em><em>character</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>tensor_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The tensor to check</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2550,14 +2803,14 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/poll_tensor">
-<em class="property">function  </em><code class="sig-name descname">poll_tensor</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">tensor_name</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">poll_tensor</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">tensor_name</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>tensor_name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Key in the database to poll</p></li>
-<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
-<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>tensor_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Key in the database to poll</p></li>
+<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
+<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2568,14 +2821,14 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/poll_model">
-<em class="property">function  </em><code class="sig-name descname">poll_model</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">model_name</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">poll_model</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">model_name</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_model" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>model_name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Key in the database to poll</p></li>
-<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
-<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>model_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Key in the database to poll</p></li>
+<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
+<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2586,14 +2839,14 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/poll_key">
-<em class="property">function  </em><code class="sig-name descname">poll_key</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_key" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">poll_key</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">poll_frequency_ms</em>, <em class="sig-param">num_tries</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/poll_key" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>key</strong><em> [</em><em>character</em><em>]</em> :: &lt; Key in the database to poll</p></li>
-<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
-<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The client</p></li>
+<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Key in the database to poll</p></li>
+<li><p><strong>poll_frequency_ms</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Frequency at which to poll the database (ms)</p></li>
+<li><p><strong>num_tries</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; Number of times to poll the database before failing</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2604,11 +2857,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_i8">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i8" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i8" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2619,11 +2872,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_i16">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i16" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i16" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2634,11 +2887,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2649,11 +2902,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2664,11 +2917,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_float">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2679,11 +2932,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_tensor_double">
-<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_tensor_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2694,11 +2947,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_i8">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i8" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i8" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2709,11 +2962,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_i16">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i16" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i16" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2724,11 +2977,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2739,11 +2992,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2754,11 +3007,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_float">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>real</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2769,11 +3022,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/unpack_tensor_double">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/unpack_tensor_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>real</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -2784,12 +3037,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/rename_tensor">
-<em class="property">subroutine  </em><code class="sig-name descname">rename_tensor</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">new_key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/rename_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">rename_tensor</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">new_key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/rename_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; The initialized Fortran SmartRedis client</p></li>
-<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the tensor</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The initialized Fortran SmartRedis client</p></li>
+<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The current key for the tensor</p></li>
 <li><p><strong>new_key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The new tensor key</p></li>
 </ul>
 </dd>
@@ -2798,12 +3051,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/delete_tensor">
-<em class="property">subroutine  </em><code class="sig-name descname">delete_tensor</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/delete_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">delete_tensor</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/delete_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt;  The initialized Fortran SmartRedis client</p></li>
-<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the tensor</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The initialized Fortran SmartRedis client</p></li>
+<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key associated with the tensor</p></li>
 </ul>
 </dd>
 </dl>
@@ -2811,12 +3064,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/copy_tensor">
-<em class="property">subroutine  </em><code class="sig-name descname">copy_tensor</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">src_name</em>, <em class="sig-param">dest_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/copy_tensor" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">copy_tensor</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">src_name</em>, <em class="sig-param">dest_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/copy_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; The initialized Fortran SmartRedis client</p></li>
-<li><p><strong>src_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the tensor</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The initialized Fortran SmartRedis client</p></li>
+<li><p><strong>src_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key associated with the tensor</p></li>
 <li><p><strong>dest_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The new tensor key</p></li>
 </ul>
 </dd>
@@ -2825,12 +3078,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/get_model">
-<em class="property">subroutine  </em><code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">model</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_model" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
-<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the model</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key associated with the model</p></li>
 <li><p><strong>model</strong><em> [</em><em>character</em><em>,</em><em>out</em><em>]</em> :: &lt; The model as a continuous buffer</p></li>
 </ul>
 </dd>
@@ -2839,11 +3092,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/set_model_from_file">
-<em class="property">subroutine  </em><code class="sig-name descname">set_model_from_file</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">model_file</em>, <em class="sig-param">backend</em>, <em class="sig-param">device</em><span class="optional">[</span>, <em class="sig-param">batch_size</em><span class="optional">[</span>, <em class="sig-param">min_batch_size</em><span class="optional">[</span>, <em class="sig-param">tag</em><span class="optional">[</span>, <em class="sig-param">inputs</em><span class="optional">[</span>, <em class="sig-param">outputs</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_model_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">set_model_from_file</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">model_file</em>, <em class="sig-param">backend</em>, <em class="sig-param">device</em><span class="optional">[</span>, <em class="sig-param">batch_size</em><span class="optional">[</span>, <em class="sig-param">min_batch_size</em><span class="optional">[</span>, <em class="sig-param">tag</em><span class="optional">[</span>, <em class="sig-param">inputs</em><span class="optional">[</span>, <em class="sig-param">outputs</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_model_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the model</p></li>
 <li><p><strong>model_file</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The file storing the model</p></li>
 <li><p><strong>backend</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the backend (TF, TFLITE, TORCH, ONNX)</p></li>
@@ -2860,13 +3113,13 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/set_model">
-<em class="property">subroutine  </em><code class="sig-name descname">set_model</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">model</em>, <em class="sig-param">backend</em>, <em class="sig-param">device</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">min_batch_size</em>, <em class="sig-param">tag</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">set_model</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">model</em>, <em class="sig-param">backend</em>, <em class="sig-param">device</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">min_batch_size</em>, <em class="sig-param">tag</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_model" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the model</p></li>
-<li><p><strong>model</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The binary representaiton o</p></li>
+<li><p><strong>model</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The binary representation of the model</p></li>
 <li><p><strong>backend</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the backend (TF, TFLITE, TORCH, ONNX)</p></li>
 <li><p><strong>device</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the device (CPU, GPU, GPU:0, GPU:1…)</p></li>
 <li><p><strong>batch_size</strong><em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em> :: &lt; The batch size for model execution</p></li>
@@ -2881,11 +3134,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/run_model">
-<em class="property">subroutine  </em><code class="sig-name descname">run_model</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/run_model" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">run_model</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/run_model" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the model</p></li>
 <li><p><strong>inputs</strong> (*)<em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; One or more names of model input nodes (TF models)</p></li>
 <li><p><strong>outputs</strong> (*)<em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; One or more names of model output nodes (TF models)</p></li>
@@ -2896,11 +3149,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/get_script">
-<em class="property">subroutine  </em><code class="sig-name descname">get_script</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_script" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_script</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_script" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the script</p></li>
 <li><p><strong>script</strong><em> [</em><em>character</em><em>,</em><em>out</em><em>]</em> :: &lt; The script as a continuous buffer</p></li>
 </ul>
@@ -2910,11 +3163,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/set_script_from_file">
-<em class="property">subroutine  </em><code class="sig-name descname">set_script_from_file</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">device</em>, <em class="sig-param">script_file</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_script_from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">set_script_from_file</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">device</em>, <em class="sig-param">script_file</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_script_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the script</p></li>
 <li><p><strong>device</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the device (CPU, GPU, GPU:0, GPU:1…)</p></li>
 <li><p><strong>script_file</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The file storing the script</p></li>
@@ -2925,11 +3178,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/set_script">
-<em class="property">subroutine  </em><code class="sig-name descname">set_script</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">device</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_script" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">set_script</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">device</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_script" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the script</p></li>
 <li><p><strong>device</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the device (CPU, GPU, GPU:0, GPU:1…)</p></li>
 <li><p><strong>script</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The file storing the script</p></li>
@@ -2940,11 +3193,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/run_script">
-<em class="property">subroutine  </em><code class="sig-name descname">run_script</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">key</em>, <em class="sig-param">func</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/run_script" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">run_script</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">key</em>, <em class="sig-param">func</em>, <em class="sig-param">inputs</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/run_script" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>key</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key to use to place the script</p></li>
 <li><p><strong>func</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the function in the script to call</p></li>
 <li><p><strong>inputs</strong> (*)<em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; One or more names of script input nodes (TF scripts)</p></li>
@@ -2956,11 +3209,11 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/put_dataset">
-<em class="property">subroutine  </em><code class="sig-name descname">put_dataset</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">put_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/put_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
 <li><p><strong>dataset</strong><em> [</em><em>dataset_type</em><em>,</em><em>in</em><em>]</em> :: &lt; Dataset to store in the dataset</p></li>
 </ul>
 </dd>
@@ -2969,12 +3222,12 @@ field in the DataSet</p>
 
 <dl class="function">
 <dt id="f/smartredis_client/get_dataset">
-<em class="property">function  </em><code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">function  </em><code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/get_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Name of the dataset to get</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Name of the dataset to get</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return</dt>
@@ -2985,13 +3238,13 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/rename_dataset">
-<em class="property">subroutine  </em><code class="sig-name descname">rename_dataset</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">new_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/rename_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">rename_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">new_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/rename_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Original name of the dataset</p></li>
-<li><p><strong>new_name</strong><em> [</em><em>character</em><em>]</em> :: &lt; New name of the dataset</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Original name of the dataset</p></li>
+<li><p><strong>new_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; New name of the dataset</p></li>
 </ul>
 </dd>
 </dl>
@@ -2999,13 +3252,13 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/copy_dataset">
-<em class="property">subroutine  </em><code class="sig-name descname">copy_dataset</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">new_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/copy_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">copy_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">new_name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/copy_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Original name of the dataset</p></li>
-<li><p><strong>new_name</strong><em> [</em><em>character</em><em>]</em> :: &lt; New name of the dataset</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Source name of the dataset</p></li>
+<li><p><strong>new_name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Name of the new dataset</p></li>
 </ul>
 </dd>
 </dl>
@@ -3013,12 +3266,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/delete_dataset">
-<em class="property">subroutine  </em><code class="sig-name descname">delete_dataset</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/delete_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">delete_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/delete_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Name of the dataset to delete</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Name of the dataset to delete</p></li>
 </ul>
 </dd>
 </dl>
@@ -3026,12 +3279,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/set_data_source">
-<em class="property">subroutine  </em><code class="sig-name descname">set_data_source</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">source_id</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_data_source" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">set_data_source</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">source_id</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/set_data_source" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>source_id</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>source_id</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The key prefix</p></li>
 </ul>
 </dd>
 </dl>
@@ -3039,12 +3292,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/use_model_ensemble_prefix">
-<em class="property">subroutine  </em><code class="sig-name descname">use_model_ensemble_prefix</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">use_prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/use_model_ensemble_prefix" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">use_model_ensemble_prefix</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">use_prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/use_model_ensemble_prefix" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>use_prefix</strong><em> [</em><em>logical</em><em>,</em><em>in</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>use_prefix</strong><em> [</em><em>logical</em><em>,</em><em>in</em><em>]</em> :: &lt; The prefix setting</p></li>
 </ul>
 </dd>
 </dl>
@@ -3052,12 +3305,12 @@ field in the DataSet</p>
 
 <dl class="subroutine">
 <dt id="f/smartredis_client/use_tensor_ensemble_prefix">
-<em class="property">subroutine  </em><code class="sig-name descname">use_tensor_ensemble_prefix</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">use_prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/use_tensor_ensemble_prefix" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">use_tensor_ensemble_prefix</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">use_prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_client/use_tensor_ensemble_prefix" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>use_prefix</strong><em> [</em><em>logical</em><em>,</em><em>in</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; An initialized SmartRedis client</p></li>
+<li><p><strong>use_prefix</strong><em> [</em><em>logical</em><em>,</em><em>in</em><em>]</em> :: &lt; The prefix setting</p></li>
 </ul>
 </dd>
 </dl>
@@ -3085,7 +3338,7 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 <dd class="field-odd"><p><a class="reference internal" href="#f/smartredis_dataset/unknown_type" title="f/smartredis_dataset/unknown_type"><code class="xref f f-type docutils literal notranslate"><span class="pre">unknown_type</span></code></a></p>
 </dd>
 <dt class="field-even">Routines</dt>
-<dd class="field-even"><p><a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_double" title="f/smartredis_dataset/add_meta_scalar_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_float" title="f/smartredis_dataset/add_meta_scalar_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_i32" title="f/smartredis_dataset/add_meta_scalar_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_i64" title="f/smartredis_dataset/add_meta_scalar_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_string" title="f/smartredis_dataset/add_meta_string"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_string()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_double" title="f/smartredis_dataset/add_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_float" title="f/smartredis_dataset/add_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i16" title="f/smartredis_dataset/add_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i32" title="f/smartredis_dataset/add_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i64" title="f/smartredis_dataset/add_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i8" title="f/smartredis_dataset/add_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_double" title="f/smartredis_dataset/get_meta_scalars_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_float" title="f/smartredis_dataset/get_meta_scalars_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_i32" title="f/smartredis_dataset/get_meta_scalars_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_i64" title="f/smartredis_dataset/get_meta_scalars_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/initialize" title="f/smartredis_dataset/initialize"><code class="xref f f-func docutils literal notranslate"><span class="pre">initialize()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_double" title="f/smartredis_dataset/unpack_dataset_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_float" title="f/smartredis_dataset/unpack_dataset_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i16" title="f/smartredis_dataset/unpack_dataset_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i32" title="f/smartredis_dataset/unpack_dataset_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i64" title="f/smartredis_dataset/unpack_dataset_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i8" title="f/smartredis_dataset/unpack_dataset_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i8()</span></code></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_double" title="f/smartredis_dataset/add_meta_scalar_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_float" title="f/smartredis_dataset/add_meta_scalar_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_i32" title="f/smartredis_dataset/add_meta_scalar_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_scalar_i64" title="f/smartredis_dataset/add_meta_scalar_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_scalar_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_meta_string" title="f/smartredis_dataset/add_meta_string"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_meta_string()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_double" title="f/smartredis_dataset/add_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_float" title="f/smartredis_dataset/add_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i16" title="f/smartredis_dataset/add_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i32" title="f/smartredis_dataset/add_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i64" title="f/smartredis_dataset/add_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/add_tensor_i8" title="f/smartredis_dataset/add_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">add_tensor_i8()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_double" title="f/smartredis_dataset/get_meta_scalars_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_float" title="f/smartredis_dataset/get_meta_scalars_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_i32" title="f/smartredis_dataset/get_meta_scalars_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/get_meta_scalars_i64" title="f/smartredis_dataset/get_meta_scalars_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">get_meta_scalars_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/initialize_dataset" title="f/smartredis_dataset/initialize_dataset"><code class="xref f f-func docutils literal notranslate"><span class="pre">initialize_dataset()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_double" title="f/smartredis_dataset/unpack_dataset_tensor_double"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_double()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_float" title="f/smartredis_dataset/unpack_dataset_tensor_float"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_float()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i16" title="f/smartredis_dataset/unpack_dataset_tensor_i16"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i16()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i32" title="f/smartredis_dataset/unpack_dataset_tensor_i32"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i32()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i64" title="f/smartredis_dataset/unpack_dataset_tensor_i64"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i64()</span></code></a>, <a class="reference internal" href="#f/smartredis_dataset/unpack_dataset_tensor_i8" title="f/smartredis_dataset/unpack_dataset_tensor_i8"><code class="xref f f-func docutils literal notranslate"><span class="pre">unpack_dataset_tensor_i8()</span></code></a></p>
 </dd>
 </dl>
 <p class="rubric">Needed modules</p>
@@ -3100,7 +3353,7 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 <dd><dl class="field-list simple">
 <dt class="field-odd">Type fields</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><code class="sig-name descname">% </code><code class="sig-name descname">dataset</code><em> [</em><em>c_ptr</em><em>]</em></p></li>
+<li><p><code class="sig-name descname">% </code><code class="sig-name descname">dataset_ptr</code><em> [</em><em>c_ptr</em><em>]</em></p></li>
 </ul>
 </dd>
 </dl>
@@ -3110,13 +3363,13 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 </ul>
 <p class="rubric">Subroutines and functions</p>
 <dl class="subroutine">
-<dt id="f/smartredis_dataset/initialize">
-<em class="property">subroutine  </em><code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/initialize" title="Permalink to this definition">¶</a></dt>
+<dt id="f/smartredis_dataset/initialize_dataset">
+<em class="property">subroutine  </em><code class="sig-name descname">initialize_dataset</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/initialize_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
-<li><p><strong>name</strong><em> [</em><em>character</em><em>]</em> :: &lt; Name of the dataset</p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; Receives the dataset</p></li>
+<li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; Name of the dataset</p></li>
 </ul>
 </dd>
 </dl>
@@ -3124,11 +3377,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_i8">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i8" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i8" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3139,11 +3392,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_i16">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i16" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i16" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3154,11 +3407,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3169,11 +3422,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3184,11 +3437,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_float">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3199,11 +3452,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_tensor_double">
-<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_tensor_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>data</strong> (..)<em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; Data to be sent</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3214,11 +3467,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_i8">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i8" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i8</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i8" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3229,11 +3482,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_i16">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i16" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i16</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i16" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3244,11 +3497,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3259,11 +3512,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>integer</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3274,11 +3527,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_float">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>real</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3289,11 +3542,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/unpack_dataset_tensor_double">
-<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">unpack_dataset_tensor_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">result</em>, <em class="sig-param">dims</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/unpack_dataset_tensor_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em></p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em></p></li>
 <li><p><strong>result</strong> (..)<em> [</em><em>real</em><em>,</em><em>out,target</em><em>]</em> :: &lt; Array to be populated with data</p></li>
 <li><p><strong>dims</strong> (*)<em> [</em><em>integer</em><em>,</em><em>in</em><em>]</em></p></li>
@@ -3304,11 +3557,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/get_meta_scalars_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong> (*)<em> [</em><em>integer</em><em>,</em><em>pointer</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3318,11 +3571,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/get_meta_scalars_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong> (*)<em> [</em><em>integer</em><em>,</em><em>pointer</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3332,11 +3585,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/get_meta_scalars_float">
-<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong> (*)<em> [</em><em>real</em><em>,</em><em>pointer</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3346,11 +3599,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/get_meta_scalars_double">
-<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">get_meta_scalars_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/get_meta_scalars_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong> (*)<em> [</em><em>real</em><em>,</em><em>pointer</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3360,11 +3613,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_meta_scalar_i32">
-<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_i32</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_i32" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_i32</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_i32" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong><em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3374,11 +3627,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_meta_scalar_i64">
-<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_i64</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_i64" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_i64</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_i64" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong><em> [</em><em>integer</em><em>,</em><em>in,target</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3388,11 +3641,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_meta_scalar_float">
-<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_float</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_float" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_float</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_float" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong><em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3402,11 +3655,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_meta_scalar_double">
-<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_double</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_double" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_meta_scalar_double</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_scalar_double" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong><em> [</em><em>real</em><em>,</em><em>in,target</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3416,11 +3669,11 @@ support 32/64-bit <code class="docutils literal notranslate"><span class="pre">r
 
 <dl class="subroutine">
 <dt id="f/smartredis_dataset/add_meta_string">
-<em class="property">subroutine  </em><code class="sig-name descname">add_meta_string</code><span class="sig-paren">(</span><em class="sig-param">this</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_string" title="Permalink to this definition">¶</a></dt>
+<em class="property">subroutine  </em><code class="sig-name descname">add_meta_string</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">name</em>, <em class="sig-param">meta</em><span class="sig-paren">)</span><a class="headerlink" href="#f/smartredis_dataset/add_meta_string" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>this</strong><em> [</em><em>real</em><em>]</em></p></li>
+<li><p><strong>self</strong><em> [</em><em>real</em><em>]</em> :: &lt; The dataset</p></li>
 <li><p><strong>name</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The name of the metadata field</p></li>
 <li><p><strong>meta</strong><em> [</em><em>character</em><em>,</em><em>in</em><em>]</em> :: &lt; The actual metadata</p></li>
 </ul>
@@ -3536,8 +3789,7 @@ send and receive data with the Fortran client.</p>
 <span class="k">end program </span><span class="n">main</span>
 </pre></div>
 </td></tr></table></div>
-<p>Other examples are shown in the
-<span class="xref std std-ref">Fortran Client Examples section</span>.</p>
+<p>Other examples are shown in the Fortran client examples sections.</p>
 </div>
 <div class="section" id="compiler-requirements">
 <h4>Compiler Requirements<a class="headerlink" href="#compiler-requirements" title="Permalink to this headline">¶</a></h4>
@@ -3557,7 +3809,7 @@ been implemented. This includes</p>
 <li><p>Retrieving metadata strings (Dataset: <code class="docutils literal notranslate"><span class="pre">get_meta_strings</span></code>)</p></li>
 <li><p>Returning a dataset tensor or tensor from the database as an opaque type (Dataset: <code class="docutils literal notranslate"><span class="pre">get_dataset_tensor</span></code>, Client: <code class="docutils literal notranslate"><span class="pre">get_tensor</span></code>)</p></li>
 <li><p>Getting tensors from the database as an opaque type (Client:<code class="docutils literal notranslate"><span class="pre">get_tensor</span></code>) (note unpacking tensors into allocated
-memory is supported, see the <span class="xref std std-ref">Fortran Client Examples section</span>)</p></li>
+memory is supported, see the Fortran client examples section.</p></li>
 </ul>
 </div>
 <div class="section" id="source-code-organization">
@@ -3573,9 +3825,8 @@ duplicated code and organize the variety of methods included within each type. T
 general functionality and suffixed by the type of code contained within.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;functionality&gt;_interfaces.inc</span></code>: Define the C-bound interfaces to the SmartRedis-C methods</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&lt;functionality&gt;_methods_common.inc</span></code>: Represents the source code that is exactly the same for all methods which</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;functionality&gt;_methods_common.inc</span></code>: Represents the source code that is exactly the same for all methods which share the same functionality, but differ only by the type of variable</p></li>
 </ul>
-<p>share the same functionality, but differ only by the type of variable</p>
 <p>For example, <code class="docutils literal notranslate"><span class="pre">client/put_tensor_interfaces.inc</span></code> define the Fortran-C interfaces to put a tensor into the database.
 <code class="docutils literal notranslate"><span class="pre">client/put_tensor_methods_common.inc</span></code> form the main body of the source code that handles the conversion and
 calling of the Fortran-C interfaces.</p>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.database.slurmOrchestrator &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.database.slurmOrchestrator &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -227,7 +229,8 @@
         <span class="n">account</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">alloc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">dpn</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">db_per_host</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">interface</span><span class="o">=</span><span class="s2">&quot;ipogif0&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 
@@ -253,24 +256,25 @@
 <span class="sd">        :type batch: bool, optional</span>
 <span class="sd">        :param hosts: specify hosts to launch on</span>
 <span class="sd">        :type hosts: list[str]</span>
-<span class="sd">        :param run_command: specify launch binary. Options are ``mpirun`` and ``srun``</span>
-<span class="sd">        :type run_command: str</span>
+<span class="sd">        :param run_command: specify launch binary. Options are &quot;mpirun&quot; and &quot;srun&quot;, defaults to &quot;srun&quot;</span>
+<span class="sd">        :type run_command: str, optional</span>
 <span class="sd">        :param account: account to run batch on</span>
-<span class="sd">        :type account: str</span>
+<span class="sd">        :type account: str, optional</span>
 <span class="sd">        :param time: walltime for batch &#39;HH:MM:SS&#39; format</span>
-<span class="sd">        :type time: str</span>
+<span class="sd">        :type time: str, optional</span>
 <span class="sd">        :param alloc: allocation to launch on, defaults to None</span>
 <span class="sd">        :type alloc: str, optional</span>
-<span class="sd">        :param dpn: number of database per node (MPMD), defaults to 1</span>
-<span class="sd">        :type dpn: int, optional</span>
+<span class="sd">        :param db_per_host: number of database shards per system host (MPMD), defaults to 1</span>
+<span class="sd">        :type db_per_host: int, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">port</span><span class="p">,</span>
+            <span class="n">interface</span><span class="p">,</span>
             <span class="n">db_nodes</span><span class="o">=</span><span class="n">db_nodes</span><span class="p">,</span>
             <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span>
             <span class="n">run_command</span><span class="o">=</span><span class="n">run_command</span><span class="p">,</span>
             <span class="n">alloc</span><span class="o">=</span><span class="n">alloc</span><span class="p">,</span>
-            <span class="n">dpn</span><span class="o">=</span><span class="n">dpn</span><span class="p">,</span>
+            <span class="n">db_per_host</span><span class="o">=</span><span class="n">db_per_host</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_batch_settings</span><span class="p">(</span>
@@ -282,6 +286,9 @@
             <span class="k">raise</span> <span class="n">SmartSimError</span><span class="p">(</span>
                 <span class="s2">&quot;hosts argument is required when launching SlurmOrchestrator with mpirun&quot;</span>
             <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_run_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_batch_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_reserved</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SlurmOrchestrator.set_cpus"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.database.SlurmOrchestrator.set_cpus">[docs]</a>    <span class="k">def</span> <span class="nf">set_cpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_cpus</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs available to each database shard</span>
@@ -314,7 +321,7 @@
         <span class="sd">&quot;&quot;&quot;Specify the hosts for the ``SlurmOrchestrator`` to launch on</span>
 
 <span class="sd">        :param host_list: list of host (compute node names)</span>
-<span class="sd">        :type host_list: list[str]</span>
+<span class="sd">        :type host_list: str, list[str]</span>
 <span class="sd">        :raises TypeError: if wrong type</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">host_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -344,16 +351,41 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">SmartSimError</span><span class="p">(</span><span class="s2">&quot;Not running as batch, cannot set batch_arg&quot;</span><span class="p">)</span>
-        <span class="c1"># TODO catch commonly used arguments we use for SmartSim here</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">batch_settings</span><span class="o">.</span><span class="n">batch_args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_batch_args</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Can not set batch argument </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">: it is a reserved keyword in SlurmOrchestrator&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">batch_settings</span><span class="o">.</span><span class="n">batch_args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="SlurmOrchestrator.set_run_arg"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.database.SlurmOrchestrator.set_run_arg">[docs]</a>    <span class="k">def</span> <span class="nf">set_run_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a run argument the orchestrator should launch</span>
+<span class="sd">        each node with (it will be passed to `jrun`)</span>
+
+<span class="sd">        Some commonly used arguments are used</span>
+<span class="sd">        by SmartSim and will not be allowed to be set.</span>
+<span class="sd">        For example, &quot;n&quot;, &quot;N&quot;, etc.</span>
+
+<span class="sd">        :param arg: run argument to set</span>
+<span class="sd">        :type arg: str</span>
+<span class="sd">        :param value: run parameter - set to None if no parameter value</span>
+<span class="sd">        :type value: str | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_run_args</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">run_settings</span><span class="p">)]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Can not set run argument </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">: it is a reserved keyword in SlurmOrchestrator&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">db</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">:</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">run_settings</span><span class="o">.</span><span class="n">run_args</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
     <span class="k">def</span> <span class="nf">_build_batch_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_nodes</span><span class="p">,</span> <span class="n">alloc</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">batch_settings</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">dpn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dpn&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">db_per_host</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_per_host&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># enter this conditional if user has not specified an allocation to run</span>
         <span class="c1"># on or if user specified batch=False (alloc will be found through env)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">alloc</span> <span class="ow">and</span> <span class="n">batch</span><span class="p">:</span>
-            <span class="n">batch_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">:</span> <span class="n">dpn</span><span class="p">}</span>
+            <span class="n">batch_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">:</span> <span class="n">db_per_host</span><span class="p">}</span>
             <span class="n">batch_settings</span> <span class="o">=</span> <span class="n">SbatchSettings</span><span class="p">(</span>
                 <span class="n">nodes</span><span class="o">=</span><span class="n">db_nodes</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="n">account</span><span class="p">,</span> <span class="n">batch_args</span><span class="o">=</span><span class="n">batch_args</span>
             <span class="p">)</span>
@@ -371,30 +403,30 @@
 
     <span class="k">def</span> <span class="nf">_build_srun_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exe</span><span class="p">,</span> <span class="n">exe_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">alloc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alloc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">dpn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dpn&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">db_per_host</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_per_host&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">run_args</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_args&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># if user specified batch=False</span>
         <span class="c1"># also handles batch=False and alloc=False (alloc will be found by launcher)</span>
         <span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;ntasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpn</span>
-        <span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dpn</span>
+        <span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;ntasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_per_host</span>
+        <span class="n">run_args</span><span class="p">[</span><span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">db_per_host</span>
         <span class="n">run_settings</span> <span class="o">=</span> <span class="n">SrunSettings</span><span class="p">(</span><span class="n">exe</span><span class="p">,</span> <span class="n">exe_args</span><span class="p">,</span> <span class="n">run_args</span><span class="o">=</span><span class="n">run_args</span><span class="p">,</span> <span class="n">alloc</span><span class="o">=</span><span class="n">alloc</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dpn</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">db_per_host</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># tell step to create a mpmd executable</span>
             <span class="n">run_settings</span><span class="o">.</span><span class="n">mpmd</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">run_settings</span>
 
     <span class="k">def</span> <span class="nf">_build_mpirun_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exe</span><span class="p">,</span> <span class="n">exe_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">alloc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alloc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">dpn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dpn&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">db_per_host</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_per_host&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alloc</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s2">&quot;SlurmOrchestrator using OpenMPI cannot specify allocation to launch in&quot;</span>
             <span class="p">)</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> User must launch in interactive allocation or as batch.&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dpn</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">db_per_host</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;SlurmOrchestrator does not support multiple databases per node when launching with mpirun&quot;</span>
             <span class="k">raise</span> <span class="n">SmartSimError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -410,13 +442,13 @@
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">db_nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">SSUnsupportedError</span><span class="p">(</span><span class="s2">&quot;Orchestrator does not support clusters of size 2&quot;</span><span class="p">)</span>
 
-        <span class="n">dpn</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dpn&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">db_per_host</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;db_per_host&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">port</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;port&quot;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)</span>
 
         <span class="n">db_conf</span> <span class="o">=</span> <span class="n">CONFIG</span><span class="o">.</span><span class="n">redis_conf</span>
-        <span class="n">exe</span> <span class="o">=</span> <span class="n">CONFIG</span><span class="o">.</span><span class="n">redis_exe</span>
-        <span class="n">ip_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_IP_module_path</span><span class="p">()</span>
+        <span class="n">redis_exe</span> <span class="o">=</span> <span class="n">CONFIG</span><span class="o">.</span><span class="n">redis_exe</span>
         <span class="n">ai_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_AI_module</span><span class="p">()</span>
+        <span class="n">start_script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_redis_start_script</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">db_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">db_nodes</span><span class="p">):</span>
             <span class="n">db_node_name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">db_id</span><span class="p">)))</span>
@@ -424,27 +456,80 @@
             <span class="c1"># per node. also collect port range for dbnode</span>
             <span class="n">ports</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">exe_args</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">port_offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dpn</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">port_offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">db_per_host</span><span class="p">):</span>
                 <span class="n">next_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span> <span class="o">+</span> <span class="n">port_offset</span>
-                <span class="n">node_exe_args</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">db_conf</span><span class="p">,</span>
-                    <span class="n">ai_module</span><span class="p">,</span>
-                    <span class="n">ip_module</span><span class="p">,</span>
-                    <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="n">next_port</span><span class="p">),</span>
+                <span class="n">start_script_args</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">start_script</span><span class="p">,</span>  <span class="c1"># redis_starter.py</span>
+                    <span class="sa">f</span><span class="s2">&quot;+ifname=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_interface</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># pass interface to start script</span>
+                    <span class="s2">&quot;+command&quot;</span><span class="p">,</span>  <span class="c1"># command flag for argparser</span>
+                    <span class="n">redis_exe</span><span class="p">,</span>  <span class="c1"># redis-server</span>
+                    <span class="n">db_conf</span><span class="p">,</span>  <span class="c1"># redis6.conf file</span>
+                    <span class="n">ai_module</span><span class="p">,</span>  <span class="c1"># redisai.so</span>
+                    <span class="s2">&quot;--port&quot;</span><span class="p">,</span>  <span class="c1"># redis port</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">next_port</span><span class="p">),</span>  <span class="c1"># port number</span>
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="n">cluster</span><span class="p">:</span>
-                    <span class="n">node_exe_args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster_args</span><span class="p">(</span><span class="n">db_node_name</span><span class="p">,</span> <span class="n">next_port</span><span class="p">)</span>
-                <span class="n">exe_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_exe_args</span><span class="p">)</span>
+                    <span class="n">start_script_args</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cluster_args</span><span class="p">(</span><span class="n">db_node_name</span><span class="p">,</span> <span class="n">next_port</span><span class="p">)</span>
+
+                <span class="n">exe_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">start_script_args</span><span class="p">))</span>
                 <span class="n">ports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_port</span><span class="p">)</span>
 
-            <span class="c1"># if only launching 1 dpn, we don&#39;t need a list of exe args lists</span>
-            <span class="k">if</span> <span class="n">dpn</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># if only launching 1 db_per_host, we don&#39;t need a list of exe args lists</span>
+            <span class="k">if</span> <span class="n">db_per_host</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">exe_args</span> <span class="o">=</span> <span class="n">exe_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">run_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_run_settings</span><span class="p">(</span><span class="n">exe</span><span class="p">,</span> <span class="n">exe_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">run_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_run_settings</span><span class="p">(</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">exe_args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">node</span> <span class="o">=</span> <span class="n">DBNode</span><span class="p">(</span><span class="n">db_node_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">run_settings</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ports</span> <span class="o">=</span> <span class="n">ports</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ports</span> <span class="o">=</span> <span class="n">ports</span>
+
+    <span class="k">def</span> <span class="nf">_fill_reserved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fill the reserved batch and run arguments dictionaries&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_run_args</span><span class="p">[</span><span class="n">MpirunSettings</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;np&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output-filename&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;host&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_run_args</span><span class="p">[</span><span class="n">SrunSettings</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;nodes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ntasks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;e&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;job-name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;J&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;jobid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;multi-prog&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;w&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reserved_batch_args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;nodes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ntasks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ntasks-per-node&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;o&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;e&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;job-name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;J&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;jobid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;multi-prog&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;w&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chdir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
 </pre></div>
 
            </div>

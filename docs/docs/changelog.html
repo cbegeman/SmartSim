@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Changelog &mdash; SmartSim 0.3.1 documentation</title>
+  <title>Changelog &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -91,10 +91,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -116,13 +118,15 @@
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#smartsim">SmartSim</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">0.3.1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">0.3.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">0.3.2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">0.3.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">0.3.0</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#smartredis">SmartRedis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id3">0.1.1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">0.1.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">0.2.0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">0.1.1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">0.1.0</a></li>
 </ul>
 </li>
 </ul>
@@ -222,11 +226,30 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <p>Listed here are the changes between each release of SmartSim
 and SmartRedis.</p>
-<p>Jump to <a class="reference internal" href="#id3"><span class="std std-ref">SmartRedis Changelog</span></a></p>
+<p>Jump to <a class="reference internal" href="#id4"><span class="std std-ref">SmartRedis Changelog</span></a></p>
 <div class="section" id="smartsim">
 <h2>SmartSim<a class="headerlink" href="#smartsim" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
-<h3>0.3.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>0.3.2<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Released on August 10, 2021</p>
+<p>Description:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Upgraded RedisAI backend to 1.2.3 (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/69">SmartSim-PR69</a>)</p></li>
+<li><p>PyTorch 1.7.1, TF 2.4.2, and ONNX 1.6-7 (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/69">SmartSim-PR69</a>)</p></li>
+<li><p>LSF launcher for IBM machines (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/62">SmartSim-PR62</a>)</p></li>
+<li><p>Improved code coverage by adding more unit tests (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/53">SmartSim-PR53</a>)</p></li>
+<li><p>Orchestrator methods to get address and check status (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/60">SmartSim-PR60</a>)</p></li>
+<li><p>Added Manifest object that tracks deployables in Experiments (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/61">SmartSim-PR61</a>)</p></li>
+<li><p>Bug fixes (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/52">SmartSim-PR52</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/58">SmartSim-PR58</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/67">SmartSim-PR67</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/73">SmartSim-PR73</a>)</p></li>
+<li><p>Updated documentation and examples (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/51">SmartSim-PR51</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/57">SmartSim-PR57</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/71">SmartSim-PR71</a>)</p></li>
+<li><p>Improved IP address aquisition (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/72">SmartSim-PR72</a>)</p></li>
+<li><p>Binding database to network interfaces</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h3>0.3.1<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>Released on May 5, 2021</p>
 <p>Description:
 This release was dedicated to making the install process
@@ -235,16 +258,16 @@ easier. SmartSim can be installed from PyPi now and the
 runtimes much easier.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Pip install (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">PR42</a>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">smart</span></code> cli tool for ML backends (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">PR42</a>)</p></li>
-<li><p>Build Documentation for updated install (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/43">PR43</a>)</p></li>
-<li><p>Migrate from Jenkins to Github Actions CI (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">PR42</a>)</p></li>
-<li><p>Bug fix for setup.cfg (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/35">PR35</a>)</p></li>
+<li><p>Pip install (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">SmartSim-PR42</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smart</span></code> cli tool for ML backends (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">SmartSim-PR42</a>)</p></li>
+<li><p>Build Documentation for updated install (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/43">SmartSim-PR43</a>)</p></li>
+<li><p>Migrate from Jenkins to Github Actions CI (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/42">SmartSim-PR42</a>)</p></li>
+<li><p>Bug fix for setup.cfg (<a class="reference external" href="https://github.com/CrayLabs/SmartSim/pull/35">SmartSim-PR35</a>)</p></li>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id2">
-<h3>0.3.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>0.3.0<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Released on April 1, 2021</p>
 <p>Description:</p>
 <blockquote>
@@ -257,8 +280,27 @@ runtimes much easier.</p>
 <hr class="docutils" />
 <div class="section" id="smartredis">
 <h2>SmartRedis<a class="headerlink" href="#smartredis" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id3">
-<span id="id4"></span><h3>0.1.1<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<span id="id5"></span><h3>0.2.0<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Release on August, 5, 2021</p>
+<p>Description</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Improved tensor memory management in the Python client (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/70">PR70</a>)</p></li>
+<li><p>Improved metadata serialization and removed protobuf dependency (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/61">PR61</a>)</p></li>
+<li><p>Added unit testing infrastructure for the C++ client (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/96">PR96</a>)</p></li>
+<li><p>Improve command execution fault handling (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/65">PR65</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/97">PR97</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/105">PR105</a>)</p></li>
+<li><p>Bug fixes (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/52">PR52</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/72">PR72</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/76">PR76</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/84">PR84</a>)</p></li>
+<li><p>Added copy, rename, and delete tensor and DataSet commands in the Python client (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/66">PR66</a>)</p></li>
+<li><p>Upgrade to RedisAI 1.2.3 (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/101">PR101</a>)</p></li>
+<li><p>Fortran and C interface improvements (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/93">PR93</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/94">PR94</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/95">PR95</a>) (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/99">PR99</a>)</p></li>
+<li><p>Add Redis INFO command execution to the Python client (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/83">PR83</a>)</p></li>
+<li><p>Add Redis CLUSTER INFO command execution to the Python client (<a class="reference external" href="https://github.com/CrayLabs/SmartRedis/pull/105">PR105</a>)</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id6">
+<h3>0.1.1<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>Released on May 5, 2021</p>
 <p>Description</p>
 <blockquote>
@@ -268,8 +310,8 @@ runtimes much easier.</p>
 </ul>
 </div></blockquote>
 </div>
-<div class="section" id="id5">
-<h3>0.1.0<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>0.1.0<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <p>Released on April 1, 2021</p>
 <p>Description</p>
 <ul class="simple">

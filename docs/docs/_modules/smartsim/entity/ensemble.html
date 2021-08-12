@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.entity.ensemble &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.entity.ensemble &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -246,15 +248,15 @@
 <span class="sd">        :param params: parameters to expand into ``Model`` members</span>
 <span class="sd">        :type params: dict[str, Any]</span>
 <span class="sd">        :param batch_settings: describes settings for ``Ensemble`` as batch workload</span>
-<span class="sd">        :type batch_settings: BatchSettings</span>
+<span class="sd">        :type batch_settings: BatchSettings, optional</span>
 <span class="sd">        :param run_settings: describes how each ``Model`` should be executed</span>
-<span class="sd">        :type run_settings: RunSettings</span>
-<span class="sd">        :param replicas: number of replicas to create</span>
-<span class="sd">        :type replicas: int</span>
+<span class="sd">        :type run_settings: RunSettings, optional</span>
+<span class="sd">        :param replicas: number of ``Model`` replicas to create - a keyword argument of kwargs</span>
+<span class="sd">        :type replicas: int, optional</span>
 <span class="sd">        :param perm_strategy: strategy for expanding ``params`` into</span>
 <span class="sd">                             ``Model`` instances from params argument</span>
 <span class="sd">                             options are &quot;all_perm&quot;, &quot;stepped&quot;, &quot;random&quot;</span>
-<span class="sd">                             or a callable function</span>
+<span class="sd">                             or a callable function. Defaults to &quot;all_perm&quot;.</span>
 <span class="sd">        :type perm_strategy: str</span>
 <span class="sd">        :return: ``Ensemble`` instance</span>
 <span class="sd">        :rtype: ``Ensemble``</span>
@@ -271,7 +273,7 @@
 
     <span class="k">def</span> <span class="nf">_initialize_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize all the models within the ensemble based</span>
-<span class="sd">        on the parameters passed to the ensemble and the permuation</span>
+<span class="sd">        on the parameters passed to the ensemble and the permutation</span>
 <span class="sd">        strategy given at init.</span>
 
 <span class="sd">        :raises UserStrategyError: if user generation strategy fails</span>
@@ -337,8 +339,9 @@
 <div class="viewcode-block" id="Ensemble.add_model"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.entity.ensemble.Ensemble.add_model">[docs]</a>    <span class="k">def</span> <span class="nf">add_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a model to this ensemble</span>
 
-<span class="sd">        :param model: model instance</span>
+<span class="sd">        :param model: model instance to be added</span>
 <span class="sd">        :type model: Model</span>
+<span class="sd">        :raises TypeError: if model is not an instance of ``Model``</span>
 <span class="sd">        :raises EntityExistsError: if model already exists in this ensemble</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
@@ -378,15 +381,38 @@
         <span class="sd">&quot;&quot;&quot;Inquire as to whether each model within the ensemble will prefix its keys</span>
 
 <span class="sd">        :returns: True if all models have key prefixing enabled, False otherwise</span>
-<span class="sd">        :rtype: dict</span>
+<span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">query_key_prefixing</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">])</span></div>
 
-    <span class="k">def</span> <span class="nf">attach_generator_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_copy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_configure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Ensemble.attach_generator_files"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.entity.ensemble.Ensemble.attach_generator_files">[docs]</a>    <span class="k">def</span> <span class="nf">attach_generator_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_copy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_configure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Attach files to each model within the ensemble for generation</span>
+
+<span class="sd">        Attach files needed for the entity that, upon generation,</span>
+<span class="sd">        will be located in the path of the entity.</span>
+
+<span class="sd">        During generation, files &quot;to_copy&quot; are copied into</span>
+<span class="sd">        the path of the entity, and files &quot;to_symlink&quot; are</span>
+<span class="sd">        symlinked into the path of the entity.</span>
+
+<span class="sd">        Files &quot;to_configure&quot; are text based model input files where</span>
+<span class="sd">        parameters for the model are set. Note that only models</span>
+<span class="sd">        support the &quot;to_configure&quot; field. These files must have</span>
+<span class="sd">        fields tagged that correspond to the values the user</span>
+<span class="sd">        would like to change. The tag is settable but defaults</span>
+<span class="sd">        to a semicolon e.g. THERMO = ;10;</span>
+
+<span class="sd">        :param to_copy: files to copy, defaults to []</span>
+<span class="sd">        :type to_copy: list, optional</span>
+<span class="sd">        :param to_symlink: files to symlink, defaults to []</span>
+<span class="sd">        :type to_symlink: list, optional</span>
+<span class="sd">        :param to_configure: input files with tagged parameters, defaults to []</span>
+<span class="sd">        :type to_configure: list, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">:</span>
             <span class="n">model</span><span class="o">.</span><span class="n">attach_generator_files</span><span class="p">(</span>
                 <span class="n">to_copy</span><span class="o">=</span><span class="n">to_copy</span><span class="p">,</span> <span class="n">to_symlink</span><span class="o">=</span><span class="n">to_symlink</span><span class="p">,</span> <span class="n">to_configure</span><span class="o">=</span><span class="n">to_configure</span>
-            <span class="p">)</span>
+            <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_set_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the permutation strategy for generating models within</span>
@@ -416,7 +442,7 @@
 
 <span class="sd">        :raises TypeError: if params are of the wrong type</span>
 <span class="sd">        :return: param names and values for permutation strategy</span>
-<span class="sd">        :rtype: tuple</span>
+<span class="sd">        :rtype: tuple[list, list]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -436,10 +462,7 @@
                     <span class="s2">&quot;Incorrect type for ensemble parameters</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="o">+</span> <span class="s2">&quot;Must be list, int, or string.&quot;</span>
                 <span class="p">)</span>
-        <span class="k">return</span> <span class="n">param_names</span><span class="p">,</span> <span class="n">parameters</span>
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entities</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">param_names</span><span class="p">,</span> <span class="n">parameters</span></div>
 </pre></div>
 
            </div>

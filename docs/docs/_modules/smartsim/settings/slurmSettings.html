@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.settings.slurmSettings &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.settings.slurmSettings &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -220,15 +222,15 @@
 <span class="sd">        If an allocation is specified, the instance receiving these run</span>
 <span class="sd">        parameters will launch on that allocation.</span>
 
-<span class="sd">        :param exe: executable</span>
+<span class="sd">        :param exe: executable to run</span>
 <span class="sd">        :type exe: str</span>
-<span class="sd">        :param exe_args: executable arguments</span>
+<span class="sd">        :param exe_args: executable arguments, defaults to Noe</span>
 <span class="sd">        :type exe_args: list[str] | str, optional</span>
-<span class="sd">        :param run_args: srun arguments without dashes</span>
+<span class="sd">        :param run_args: srun arguments without dashes, defaults to None</span>
 <span class="sd">        :type run_args: dict[str, str | None], optional</span>
-<span class="sd">        :param env_vars: environment variables for job</span>
+<span class="sd">        :param env_vars: environment variables for job, defaults to None</span>
 <span class="sd">        :type env_vars: dict[str, str], optional</span>
-<span class="sd">        :param alloc: allocation ID if running on existing alloc</span>
+<span class="sd">        :param alloc: allocation ID if running on existing alloc, defaults to None</span>
 <span class="sd">        :type alloc: str, optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -251,8 +253,8 @@
         <span class="sd">&quot;&quot;&quot;Specify the hostlist for this job</span>
 
 <span class="sd">        :param host_list: hosts to launch on</span>
-<span class="sd">        :type host_list: list[str]</span>
-<span class="sd">        :raises TypeError:</span>
+<span class="sd">        :type host_list: str | list[str]</span>
+<span class="sd">        :raises TypeError: if not str or list of str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">host_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">host_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">host_list</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
@@ -295,7 +297,7 @@
 <div class="viewcode-block" id="SrunSettings.format_run_args"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.settings.SrunSettings.format_run_args">[docs]</a>    <span class="k">def</span> <span class="nf">format_run_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;return a list of slurm formatted run arguments</span>
 
-<span class="sd">        :return: list slurm arguments for these settings</span>
+<span class="sd">        :return: list of slurm arguments for these settings</span>
 <span class="sd">        :rtype: list[str]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># add additional slurm arguments based on key length</span>
@@ -315,7 +317,7 @@
 <div class="viewcode-block" id="SrunSettings.format_env_vars"><a class="viewcode-back" href="../../../api/smartsim_api.html#smartsim.settings.SrunSettings.format_env_vars">[docs]</a>    <span class="k">def</span> <span class="nf">format_env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Build environment variable string for Slurm</span>
 
-<span class="sd">        Slurm takes exports in comma seperated lists</span>
+<span class="sd">        Slurm takes exports in comma separated lists</span>
 <span class="sd">        the list starts with all as to not disturb the rest of the environment</span>
 <span class="sd">        for more information on this, see the slurm documentation for srun</span>
 
@@ -358,13 +360,13 @@
 <span class="sd">        Initialization values provided (nodes, time, account)</span>
 <span class="sd">        will overwrite the same arguments in ``batch_args`` if present</span>
 
-<span class="sd">        :param nodes: number of nodes</span>
+<span class="sd">        :param nodes: number of nodes, defaults to None</span>
 <span class="sd">        :type nodes: int, optional</span>
 <span class="sd">        :param time: walltime for job, e.g. &quot;10:00:00&quot; for 10 hours</span>
 <span class="sd">        :type time: str, optional</span>
-<span class="sd">        :param account: account for job</span>
+<span class="sd">        :param account: account for job, defaults to None</span>
 <span class="sd">        :type account: str, optional</span>
-<span class="sd">        :param batch_args: extra batch arguments</span>
+<span class="sd">        :param batch_args: extra batch arguments, defaults to None</span>
 <span class="sd">        :type batch_args: dict[str, str], optional</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;sbatch&quot;</span><span class="p">,</span> <span class="n">batch_args</span><span class="o">=</span><span class="n">batch_args</span><span class="p">)</span>
@@ -414,8 +416,8 @@
         <span class="sd">&quot;&quot;&quot;Specify the hostlist for this job</span>
 
 <span class="sd">        :param host_list: hosts to launch on</span>
-<span class="sd">        :type host_list: list[str]</span>
-<span class="sd">        :raises TypeError:</span>
+<span class="sd">        :type host_list: str | list[str]</span>
+<span class="sd">        :raises TypeError: if not str or list of str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">host_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">host_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">host_list</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartsim.launcher.slurm.slurm &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartsim.launcher.slurm.slurm &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -229,20 +231,22 @@
 
 <span class="sd">    The options can be used to pass extra settings to the</span>
 <span class="sd">    workload manager such as the following for Slurm:</span>
+
 <span class="sd">        - nodelist=&quot;nid00004&quot;</span>
 
 <span class="sd">    For arguments without a value, pass None or and empty</span>
 <span class="sd">    string as the value. For Slurm:</span>
+
 <span class="sd">        - exclusive=None</span>
 
 <span class="sd">    :param nodes: number of nodes for the allocation, defaults to 1</span>
 <span class="sd">    :type nodes: int, optional</span>
-<span class="sd">    :param time: wall time of the allocation, HH:MM:SS format</span>
-<span class="sd">    :type time: str</span>
-<span class="sd">    :param account: account id for allocation</span>
-<span class="sd">    :type account: str</span>
-<span class="sd">    :param options: additional options for the slurm wlm</span>
-<span class="sd">    :type options: dict[str, str]</span>
+<span class="sd">    :param time: wall time of the allocation, HH:MM:SS format, defaults to None</span>
+<span class="sd">    :type time: str, optional</span>
+<span class="sd">    :param account: account id for allocation, defaults to None</span>
+<span class="sd">    :type account: str, optional</span>
+<span class="sd">    :param options: additional options for the slurm wlm, defaults to None</span>
+<span class="sd">    :type options: dict[str, str], optional</span>
 <span class="sd">    :raises LauncherError: if the allocation is not successful</span>
 <span class="sd">    :return: the id of the allocation</span>
 <span class="sd">    :rtype: str</span>
@@ -273,7 +277,7 @@
 
 
 <div class="viewcode-block" id="release_allocation"><a class="viewcode-back" href="../../../../api/smartsim_api.html#smartsim.launcher.slurm.slurm.release_allocation">[docs]</a><span class="k">def</span> <span class="nf">release_allocation</span><span class="p">(</span><span class="n">alloc_id</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Free an allocations resources</span>
+    <span class="sd">&quot;&quot;&quot;Free an allocation&#39;s resources</span>
 
 <span class="sd">    :param alloc_id: allocation id</span>
 <span class="sd">    :type alloc_id: str</span>
@@ -304,13 +308,14 @@
 
 <span class="sd">    if no partition is provided, the default partition is found and used.</span>
 
-<span class="sd">    :param str partition: partition to validate</span>
-<span class="sd">    :param nodes: Override the default node count to validate</span>
-<span class="sd">    :type nodes: int</span>
-<span class="sd">    :param ppn: Override the default processes per node to validate</span>
-<span class="sd">    :type ppn: int</span>
+<span class="sd">    :param nodes: Override the default node count to validate, defaults to 1</span>
+<span class="sd">    :type nodes: int, optional</span>
+<span class="sd">    :param ppn: Override the default processes per node to validate, defaults to 1</span>
+<span class="sd">    :type ppn: int, optional</span>
+<span class="sd">    :param partition: partition to validate, defaults to None</span>
+<span class="sd">    :type partition: str, optional</span>
 <span class="sd">    :raises: LauncherError</span>
-<span class="sd">    :returns: True if resources are available</span>
+<span class="sd">    :returns: True if resources are available, False otherwise</span>
 <span class="sd">    :rtype: bool</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sys_partitions</span> <span class="o">=</span> <span class="n">_get_system_partition_info</span><span class="p">()</span>

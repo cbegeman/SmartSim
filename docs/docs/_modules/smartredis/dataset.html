@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>smartredis.dataset &mdash; SmartSim 0.3.1 documentation</title>
+  <title>smartredis.dataset &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -90,10 +90,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -206,8 +208,9 @@
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">.smartredisPy</span> <span class="kn">import</span> <span class="n">PyDataset</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">Dtypes</span>
@@ -236,7 +239,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.get_tensor"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Dataset.get_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get a tensor from this Dataset</span>
+        <span class="sd">&quot;&quot;&quot;Get a tensor from the Dataset</span>
 
 <span class="sd">        :param name: name of the tensor to get</span>
 <span class="sd">        :type name: str</span>
@@ -246,15 +249,15 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_tensor</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.add_meta_scalar"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Dataset.add_meta_scalar">[docs]</a>    <span class="k">def</span> <span class="nf">add_meta_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add metadata scalar field (non-string) with value to the DataSet</span>
-<span class="sd">            </span>
+        <span class="sd">&quot;&quot;&quot;Add metadata scalar field (non-string) with value to the DataSet</span>
+
 <span class="sd">            If the field does not exist, it will be created.</span>
 <span class="sd">            If the field exists, the value</span>
 <span class="sd">            will be appended to existing field.</span>
 
 <span class="sd">        :param name: The name used to reference the metadata</span>
 <span class="sd">                     field</span>
-<span class="sd">        :type name: str             </span>
+<span class="sd">        :type name: str</span>
 <span class="sd">        :param data: a scalar</span>
 <span class="sd">        :type data: int | float</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -268,8 +271,8 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_meta_scalar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data_as_array</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.add_meta_string"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Dataset.add_meta_string">[docs]</a>    <span class="k">def</span> <span class="nf">add_meta_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add metadata string field with value to the DataSet</span>
-<span class="sd">            </span>
+        <span class="sd">&quot;&quot;&quot;Add metadata string field with value to the DataSet</span>
+
 <span class="sd">        If the field does not exist, it will be created</span>
 <span class="sd">        If the field exists the value will</span>
 <span class="sd">        be appended to existing field.</span>
@@ -283,7 +286,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_meta_string</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.get_meta_scalars"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Dataset.get_meta_scalars">[docs]</a>    <span class="k">def</span> <span class="nf">get_meta_scalars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get the metadata scalar field values from the DataSet</span>
+        <span class="sd">&quot;&quot;&quot;Get the metadata scalar field values from the DataSet</span>
 
 <span class="sd">        :param name: The name used to reference the metadata</span>
 <span class="sd">                     field in the DataSet</span>
@@ -292,7 +295,7 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_meta_scalars</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.get_meta_strings"><a class="viewcode-back" href="../../api/smartredis_api.html#smartredis.Dataset.get_meta_strings">[docs]</a>    <span class="k">def</span> <span class="nf">get_meta_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get the metadata scalar field values from the DataSet</span>
+        <span class="sd">&quot;&quot;&quot;Get the metadata scalar field values from the DataSet</span>
 
 <span class="sd">        :param name: The name used to reference the metadata</span>
 <span class="sd">                        field in the DataSet</span>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Developer &mdash; SmartSim 0.3.1 documentation</title>
+  <title>Developer &mdash; SmartSim 0.3.2 documentation</title>
   
 
   
@@ -92,10 +92,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
 </ul>
-<p class="caption"><span class="caption-text">tutorials</span></p>
+<p class="caption"><span class="caption-text">Tutorials</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/01_getting_started/01_getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/smartredis.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/using_clients.html">Using SmartRedis Clients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/lattice_boltz_analysis.html">Online Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/inference.html">Machine Learning</a></li>
 </ul>
 <p class="caption"><span class="caption-text">SmartSim</span></p>
 <ul>
@@ -117,7 +119,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#testing-smartsim">Testing SmartSim</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#local">Local</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pbspro-slurm-cobalt">PBSPro, Slurm, Cobalt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pbspro-slurm-cobalt-lsf">PBSPro, Slurm, Cobalt, LSF</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#testing-smartredis">Testing SmartRedis</a><ul>
@@ -260,25 +262,28 @@ dependencies installed in your python environment.</p>
 runs by default and doesn’t launch any jobs out onto
 a system through a workload manager like Cobalt.</p>
 <p>If any of the above commands are used, the test suite will
-run the the “light” test suite by default</p>
+run the “light” test suite by default.</p>
 </div>
-<div class="section" id="pbspro-slurm-cobalt">
-<h3>PBSPro, Slurm, Cobalt<a class="headerlink" href="#pbspro-slurm-cobalt" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pbspro-slurm-cobalt-lsf">
+<h3>PBSPro, Slurm, Cobalt, LSF<a class="headerlink" href="#pbspro-slurm-cobalt-lsf" title="Permalink to this headline">¶</a></h3>
 <p>To run the full test suite, users will have to be on a system
-with one of the above workload managers. Additionally users will
+with one of the above workload managers. Additionally, users will
 need to obtain an allocation of at least 3 nodes.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for slurm (with srun)</span>
 salloc -N <span class="m">3</span> -A account --exclusive -t <span class="m">00</span>:10:00
 
-<span class="c1"># For PBSPro (with aprun)</span>
+<span class="c1"># for PBSPro (with aprun)</span>
 qsub -l <span class="k">select</span><span class="o">=</span><span class="m">3</span> -l <span class="nv">place</span><span class="o">=</span>scatter -l <span class="nv">walltime</span><span class="o">=</span><span class="m">00</span>:10:00 -q queue
 
 <span class="c1"># for Cobalt (with aprun)</span>
 qsub -n <span class="m">3</span> -t <span class="m">00</span>:10:00 -A account -q queue -I
+
+<span class="c1"># for LSF (with jsrun)</span>
+bsub -Is -W <span class="m">00</span>:30 -nnodes <span class="m">3</span> -P project <span class="nv">$SHELL</span>
 </pre></div>
 </div>
-<p>Values for queue and account should be substituted appropriately.</p>
-<p>Once in an interative allocation, users will need to set the test
+<p>Values for queue, account, or project should be substituted appropriately.</p>
+<p>Once in an iterative allocation, users will need to set the test
 launcher environment variable: <code class="docutils literal notranslate"><span class="pre">SMARTSIM_TEST_LAUNCHER</span></code> to one
 of the following values</p>
 <blockquote>
@@ -286,9 +291,12 @@ of the following values</p>
 <li><p>slurm</p></li>
 <li><p>cobalt</p></li>
 <li><p>pbs</p></li>
+<li><p>lsf</p></li>
 <li><p>local</p></li>
 </ul>
 </div></blockquote>
+<p>If tests have to run on an account or project,
+the environment variable <code class="docutils literal notranslate"><span class="pre">SMARTSIM_TEST_ACCOUNT</span></code> can be set.</p>
 </div>
 </div>
 <hr class="docutils" />
@@ -376,16 +384,17 @@ level of the smartredis repository.</p>
 </pre></div>
 </div>
 <p>You can also run tests for individual clients as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make test-c       <span class="c1"># run C tests</span>
-make test-fortran <span class="c1"># run Fortran tests</span>
-make test-cpp     <span class="c1"># run C++ test</span>
-make test-py      <span class="c1"># run Python tests</span>
-make testpy-cov   <span class="c1"># run python tests with coverage</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make test-c         <span class="c1"># run C tests</span>
+make test-fortran   <span class="c1"># run Fortran tests</span>
+make test-cpp       <span class="c1"># run all C++ tests</span>
+make unit-test-cpp  <span class="c1"># run unit tests for C++</span>
+make test-py        <span class="c1"># run Python tests</span>
+make testpy-cov     <span class="c1"># run python tests with coverage</span>
+make testcpp-cpv    <span class="c1"># run cpp unit tests with coverage</span>
 </pre></div>
 </div>
 </div>
 </div>
-<hr class="docutils" />
 <div class="section" id="git-workflow">
 <h2>Git Workflow<a class="headerlink" href="#git-workflow" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="setup">
