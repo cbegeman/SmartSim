@@ -7,7 +7,7 @@ log_level = "info" # default
 
 [redis]
 # path to where "redis-server" and "redis-cli" binaries are located
-bin = "/usr/bin/"
+#bin = "/usr/bin/"
 bin = "/var/lib/perceus/vnfs/fe/rootfs/usr/bin/"
 #config = "/path/to/redis.conf" # optional!
 
