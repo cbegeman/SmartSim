@@ -39,5 +39,7 @@ if DB_NODES > 0:
                           )
     exp.start(db)
     logger.debug(f"SSDB={db.hosts[0]}:{db_port}")
+    export_command_input = f"export SSDB={db.hosts[0]}:{db_port}"
+    subprocess.run(export_command_input,shell=True)
 
 #exp.stop(db)

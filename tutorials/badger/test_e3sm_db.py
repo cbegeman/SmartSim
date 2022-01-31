@@ -21,7 +21,7 @@ alloc = slurm.get_allocation(nodes=DB_NODES+MODEL_NODES,
                              #         }
                              )
 
-
+print(type(alloc))
 exp = Experiment("E3SM", launcher="slurm")
 
 # if you want a database launched out on compute nodes (assuming this is what you want)
@@ -37,25 +37,23 @@ if DB_NODES > 0:
     exp.start(db)
     print(f"Orchestrator launched on nodes: {db.hosts}")
 
-case_dir = '/lustre/scratch3/turquoise/cbegeman/E3SM-Output/20211108_WCYCL1850NS_ne4_oQU480_master/'
-os.chdir(case_dir)
-
-# create reference to the job you will run
-MODULEPATH=os.getenv('MODULEPATH')
-USER=os.getenv('USER')
-srun_settings = SrunSettings(exe="case.submit", alloc=alloc,
-                             run_args={'-a --jobid':alloc},
-                             env_vars={'MODULEPATH':MODULEPATH, 'USER':USER})
-srun_settings.set_nodes(MODEL_NODES)
-
-e3sm = exp.create_model("e3sm_with_db", srun_settings)
-
-print(subprocess.check_output("echo $MODULEPATH", shell=True))
-
-exp.start(e3sm, block=True, summary=True)
-print(exp.get_status(e3sm))
-
+#case_dir = '/lustre/scratch3/turquoise/cbegeman/E3SM-Output/20211108_WCYCL1850NS_ne4_oQU480_master/'
+#os.chdir(case_dir)
+#
+## create reference to the job you will run
+#MODULEPATH=os.getenv('MODULEPATH')
+#USER=os.getenv('USER')
+#srun_settings = SrunSettings(exe="case.submit", alloc=alloc,
+#                             run_args={'-a --jobid':alloc},
+#                             env_vars={'MODULEPATH':MODULEPATH, 'USER':USER})
+#srun_settings.set_nodes(MODEL_NODES)
+#
+#e3sm = exp.create_model("e3sm_with_db", srun_settings)
+#
+#exp.start(e3sm, block=True, summary=True)
+#print(exp.get_status(e3sm))
+#
 if DB_NODES > 0:
     exp.stop(db)
 
-#slurm.release_allocation(alloc)
+slurm.release_allocation(alloc)
