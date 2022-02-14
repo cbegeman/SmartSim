@@ -10,7 +10,11 @@ import time
 import subprocess
 import argparse
 
+db_command_input = 'echo "Entering launch_db"'
+db_command = subprocess.run(db_command_input, shell=True, capture_output=True)
+
 parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--caseroot", type=str, help="case directory")
 parser.add_argument("-j", "--jobid", type=int, help="jobid")
 parser.add_argument("-N", "--nodes", type=int, help="number of database nodes")
 args = parser.parse_args()
@@ -18,8 +22,9 @@ args = parser.parse_args()
 E3SM_JOBID = args.jobid
 DB_NODES=args.nodes
 db_port=6379
+case_dir = args.caseroot
 
-case_dir = '/lustre/scratch3/turquoise/cbegeman/E3SM-Output/20211108_WCYCL1850NS_ne4_oQU480_master/'
+#case_dir = '/lustre/scratch4/turquoise/cbegeman/E3SM-cases/20220209_WCYCL1850NS_ne4_oQU480_smartredis/'
 os.chdir(case_dir)
 
 if os.path.exists('{}/db_debug.log'.format(case_dir)):
