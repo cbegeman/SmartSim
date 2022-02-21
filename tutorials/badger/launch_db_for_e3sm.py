@@ -1,7 +1,7 @@
 from glob import glob
 from smartsim import Experiment
 from smartsim.settings import SbatchSettings, RunSettings
-from smartsim.database import SlurmOrchestrator
+from smartsim.database import Orchestrator
 from smartsim.utils.log import get_logger, log_to_file
 from smartsim import slurm
 import sys
@@ -36,7 +36,8 @@ logger.debug('DB NODES={}'.format(DB_NODES))
 
 if DB_NODES > 0:
     exp = Experiment("db", launcher="local")
-    db = SlurmOrchestrator(port=db_port,
+    db = Orchestrator(launcher="slurm",
+                      port=db_port,
                            db_nodes=DB_NODES, # only 1 database (not a cluster)
                            batch=False, # not launching as a seperate batch workload
                            interface="ib0", # high speed network to use (usually ipogif0 for aries CrayXC 50)
