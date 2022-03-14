@@ -15,7 +15,7 @@ MODEL_NODES=1
 # get an allocation we will stuff our database and model into
 alloc = slurm.get_allocation(nodes=DB_NODES+MODEL_NODES,
                              time="10:00:00",
-                             account="e3sm",
+                             account="t22_ocean_time_step",
                              #options={"exclusive": None # totally optional constraints
                                       #,"constraint": "P100"
                              #         }
