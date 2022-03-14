@@ -24,15 +24,14 @@ DB_NODES=args.nodes
 db_port=6379
 case_dir = args.caseroot
 
-#case_dir = '/lustre/scratch4/turquoise/cbegeman/E3SM-cases/20220209_WCYCL1850NS_ne4_oQU480_smartredis/'
 os.chdir(case_dir)
 
 if os.path.exists('{}/db_debug.log'.format(case_dir)):
     os.system('rm {}/db_debug.log'.format(case_dir))
 log_to_file('{}/db_debug.log'.format(case_dir))
 logger = get_logger()
-logger.debug('E3SM JOBID={}'.format(E3SM_JOBID))
-logger.debug('DB NODES={}'.format(DB_NODES))
+#logger.debug('E3SM JOBID={}'.format(E3SM_JOBID))
+#logger.debug('DB NODES={}'.format(DB_NODES))
 
 if DB_NODES > 0:
     exp = Experiment("db", launcher="local")
@@ -44,8 +43,6 @@ if DB_NODES > 0:
                            alloc=E3SM_JOBID# launching into this allocation
                           )
     exp.start(db)
-    logger.debug(f"SSDB={db.hosts[0]}:{db_port}")
-    export_command_input = f"export SSDB={db.hosts[0]}:{db_port}"
-    subprocess.run(export_command_input,shell=True)
-
+    os.environ['SSDB'] = f"{db.hosts[0]}:{db_port}"
+    logger.debug('SSDB={}'.format(os.environ.get('SSDB')))
 #exp.stop(db)
