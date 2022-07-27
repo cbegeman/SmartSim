@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,30 +24,44 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from ..error import EntityExistsError
-from ..utils.helpers import init_default
+
+from .._core.utils.helpers import cat_arg_and_value, init_default
+from ..error import EntityExistsError, SSUnsupportedError
 from .entity import SmartSimEntity
 from .files import EntityFiles
 
 
 class Model(SmartSimEntity):
-    def __init__(self, name, params, path, run_settings):
-        """Initialize a model entity within Smartsim
+    def __init__(self, name, params, path, run_settings, params_as_args=None):
+        """Initialize a ``Model``
 
         :param name: name of the model
         :type name: str
-        :param params: model parameters for writing into configuration files.
+        :param params: model parameters for writing into configuration files or
+                       to be passed as command line arguments to executable.
         :type params: dict
         :param path: path to output, error, and configuration files
         :type path: str
         :param run_settings: launcher settings specified in the experiment
         :type run_settings: RunSettings
+        :param params_as_args: list of parameters which have to be
+                               interpreted as command line arguments to
+                               be added to run_settings
+        :type params_as_args: list[str]
         """
         super().__init__(name, path, run_settings)
         self.params = params
+        self.params_as_args = params_as_args
         self.incoming_entities = []
         self._key_prefixing_enabled = False
         self.files = None
+
+    @property
+    def colocated(self):
+        """Return True if this Model will run with a colocated Orchestrator"""
+        if self.run_settings.colocated_db_settings:
+            return True
+        return False
 
     def register_incoming_entity(self, incoming_entity):
         """Register future communication between entities.
@@ -111,15 +125,100 @@ class Model(SmartSimEntity):
         to_configure = init_default([], to_configure, (list, str))
         self.files = EntityFiles(to_configure, to_copy, to_symlink)
 
+    def colocate_db(self,
+                    port=6379,
+                    db_cpus=1,
+                    limit_app_cpus=True,
+                    ifname="lo",
+                    debug=False,
+                    **kwargs):
+        """Colocate an Orchestrator instance with this Model at runtime.
+
+        This method will initialize settings which add an unsharded (not connected)
+        database to this Model instance. Only this Model will be able to communicate
+        with this colocated database by using the loopback TCP interface or Unix
+        Domain sockets (UDS coming soon).
+
+        Extra parameters for the db can be passed through kwargs. This includes
+        many performance, caching and inference settings.
+
+        .. highlight:: python
+        .. code-block:: python
+
+            ex. kwargs = {
+                maxclients: 100000,
+                threads_per_queue: 1,
+                inter_op_threads: 1,
+                intra_op_threads: 1,
+                server_threads: 2 # keydb only
+            }
+
+        Generally these don't need to be changed.
+
+        :param port: port to use for orchestrator database, defaults to 6379
+        :type port: int, optional
+        :param db_cpus: number of cpus to use for orchestrator, defaults to 1
+        :type db_cpus: int, optional
+        :param limit_app_cpus: whether to limit the number of cpus used by the app, defaults to True
+        :type limit_app_cpus: bool, optional
+        :param ifname: interface to use for orchestrator, defaults to "lo"
+        :type ifname: str, optional
+        :param debug: launch Model with extra debug information about the co-located db
+        :type debug: bool, optional
+        :param kwargs: additional keyword arguments to pass to the orchestrator database
+        :type kwargs: dict, optional
+
+        """
+        if hasattr(self.run_settings, "mpmd") and len(self.run_settings.mpmd) > 0:
+            raise SSUnsupportedError(
+                "Models co-located with databases cannot be run as a mpmd workload"
+            )
+
+        if hasattr(self.run_settings, "_prep_colocated_db"):
+            self.run_settings._prep_colocated_db(db_cpus)
+
+        # TODO list which db settings can be extras
+        colo_db_config = {
+            "port": int(port),
+            "cpus": int(db_cpus),
+            "interface": ifname,
+            "limit_app_cpus": limit_app_cpus,
+            "debug": debug,
+
+            # redisai arguments for inference settings
+            "rai_args": {
+                "threads_per_queue": kwargs.get("threads_per_queue", None),
+                "inter_op_parallelism": kwargs.get("inter_op_parallelism", None),
+                "intra_op_parallelism": kwargs.get("intra_op_parallelism", None)
+            }
+        }
+        colo_db_config["extra_db_args"] = dict([
+            (k,str(v)) for k,v in kwargs.items() if k not in colo_db_config["rai_args"]
+        ])
+        self.run_settings.colocated_db_settings = colo_db_config
+
+
+    def params_to_args(self):
+        """Convert parameters to command line arguments and update run settings."""
+        for param in self.params_as_args:
+            if not param in self.params:
+                raise ValueError(
+                    f"Tried to convert {param} to command line argument "
+                    + f"for Model {self.name}, but its value was not found in model params"
+                )
+            if self.run_settings is None:
+                raise ValueError(
+                    f"Tried to configure command line parameter for Model {self.name}, "
+                    + "but no RunSettings are set."
+                )
+            self.run_settings.add_exe_args(cat_arg_and_value(param, self.params[param]))
+
     def __eq__(self, other):
         if self.name == other.name:
             return True
         return False
 
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         entity_str = "Name: " + self.name + "\n"
         entity_str += "Type: " + self.type + "\n"
         entity_str += str(self.run_settings)

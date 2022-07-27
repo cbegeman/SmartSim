@@ -3,16 +3,19 @@ import shutil
 import pytest
 import psutil
 import smartsim
+from smartsim import Experiment
 from smartsim.database import (
     CobaltOrchestrator, SlurmOrchestrator,
     PBSOrchestrator, Orchestrator,
     LSFOrchestrator
 )
+from smartsim.error.errors import SSUnsupportedError
 from smartsim.settings import (
     SrunSettings, AprunSettings,
     JsrunSettings, RunSettings
 )
-from smartsim.config import CONFIG
+from smartsim._core.config import CONFIG
+from smartsim.error import SSConfigError
 
 
 # Globals, yes, but its a testing file
@@ -94,6 +97,11 @@ def wlmutils():
 class WLMUtils:
 
     @staticmethod
+    def set_test_launcher(new_test_launcher):
+        global test_launcher
+        test_launcher = new_test_launcher
+
+    @staticmethod
     def get_test_launcher():
         global test_launcher
         return test_launcher
@@ -107,6 +115,36 @@ class WLMUtils:
     def get_test_interface():
         global test_nic
         return test_nic
+
+    @staticmethod
+    def get_base_run_settings(exe, args, nodes=1, ntasks=1, **kwargs):
+        if test_launcher == "slurm":
+            run_args = {"--nodes": nodes,
+                        "--ntasks": ntasks,
+                        "--time": "00:10:00"}
+            run_args.update(kwargs)
+            settings = RunSettings(exe, args, run_command="srun", run_args=run_args)
+            return settings
+        if test_launcher == "pbs":
+            run_args = {"--pes": ntasks}
+            run_args.update(kwargs)
+            settings = RunSettings(exe, args, run_command="aprun", run_args=run_args)
+            return settings
+        if test_launcher == "cobalt":
+            run_args = {"--pes": ntasks}
+            run_args.update(kwargs)
+            settings = RunSettings(exe, args, run_command="aprun", run_args=run_args)
+            return settings
+        if test_launcher == "lsf":
+            run_args = {"--np": ntasks, "--nrs": nodes}
+            run_args.update(kwargs)
+            settings = RunSettings(exe, args, run_command="jsrun", run_args=run_args)
+            return settings
+        elif test_launcher != "local":
+            raise SSConfigError(f"Base run settings are available for Slurm, PBS, Cobalt, and LSF, but launcher was {test_launcher}")
+        # TODO allow user to pick aprun vs MPIrun
+        return RunSettings(exe, args)
+
 
     @staticmethod
     def get_run_settings(exe, args, nodes=1, ntasks=1, **kwargs):
@@ -153,6 +191,132 @@ class WLMUtils:
         else:
             db = Orchestrator(port=port, interface="lo")
         return db
+
+
+@pytest.fixture
+def local_db(fileutils, wlmutils, request):
+    """Yield fixture for startup and teardown of an local orchestrator"""
+
+    exp_name = request.function.__name__
+    exp = Experiment(exp_name, launcher="local")
+    test_dir = fileutils.make_test_dir(exp_name)
+    db = wlmutils.get_orchestrator()
+    db.set_path(test_dir)
+    exp.start(db)
+
+    yield db
+    # pass or fail, the teardown code below is ran after the
+    # completion of a test case that uses this fixture
+    exp.stop(db)
+
+
+@pytest.fixture
+def db(fileutils, wlmutils, request):
+    """Yield fixture for startup and teardown of an orchestrator"""
+    launcher = wlmutils.get_test_launcher()
+
+    exp_name = request.function.__name__
+    exp = Experiment(exp_name, launcher=launcher)
+    test_dir = fileutils.make_test_dir(exp_name)
+    db = wlmutils.get_orchestrator()
+    db.set_path(test_dir)
+    exp.start(db)
+
+    yield db
+    # pass or fail, the teardown code below is ran after the
+    # completion of a test case that uses this fixture
+    exp.stop(db)
+
+@pytest.fixture
+def db_cluster(fileutils, wlmutils, request):
+    """
+    Yield fixture for startup and teardown of a clustered orchestrator.
+    This should only be used in on_wlm and full_wlm tests.
+    """
+    launcher = wlmutils.get_test_launcher()
+
+    exp_name = request.function.__name__
+    exp = Experiment(exp_name, launcher=launcher)
+    test_dir = fileutils.make_test_dir(exp_name)
+    db = wlmutils.get_orchestrator(nodes=3)
+    db.set_path(test_dir)
+    exp.start(db)
+
+    yield db
+    # pass or fail, the teardown code below is ran after the
+    # completion of a test case that uses this fixture
+    exp.stop(db)
+
+@pytest.fixture
+def dbutils():
+    return DBUtils
+
+class DBUtils:
+
+    @staticmethod
+    def get_db_configs():
+        config_settings = {
+            "enable_checkpoints": 1,
+            "set_max_memory": "3gb",
+            "set_eviction_strategy": "allkeys-lru",
+            # set low to avoid permissions issues during testing
+            # TODO make a note in SmartRedis about this method possibly
+            # erroring due to the max file descriptors setting being too low
+            "set_max_clients": 100,
+            "set_max_message_size": 2_147_483_648,
+        }
+        return config_settings
+
+    @staticmethod
+    def get_smartsim_error_db_configs():
+        bad_configs = {
+            "save": [
+                "-1", # frequency must be positive
+                "2.4", # frequency must be specified in whole seconds
+            ],
+            "maxmemory": [
+                "29GG", # invalid memory form
+                str(2 ** 65) + "gb", # memory is too much
+                "3.5gb", # invalid memory form
+            ],
+            "maxclients": [
+                "-3", # number clients must be positive
+                str(2 ** 65), # number of clients is too large
+                "2.9", # number of clients must be an integer
+            ],
+            "proto-max-bulk-len": [
+                "100",  # max message size can't be smaller than 1mb
+                "9.9gb",  # invalid memory form
+                "101.1", # max message size must be an integer
+            ],
+            "maxmemory-policy": ["invalid-policy"], # must use a valid maxmemory policy
+            "invalid-parameter": ["99"],  # invalid key - no such configuration exists
+        }
+        return bad_configs
+
+    @staticmethod
+    def get_type_error_db_configs():
+        bad_configs = {
+            "save": [2, True, ["2"]],  # frequency must be specified as a string
+            "maxmemory": [99, True, ["99"]],  # memory form must be a string
+            "maxclients": [3, True, ["3"]],  # number of clients must be a string
+            "proto-max-bulk-len": [101, True, ["101"]],  # max message size must be a string
+            "maxmemory-policy": [42, True, ["42"]],  # maxmemory policies must be strings
+            10: ["3"], # invalid key - the key must be a string
+        }
+        return bad_configs
+
+    @staticmethod
+    def get_config_edit_method(db, config_setting):
+        """Get a db configuration file edit method from a str"""
+        config_edit_methods = {
+            "enable_checkpoints": db.enable_checkpoints,
+            "set_max_memory": db.set_max_memory,
+            "set_eviction_strategy": db.set_eviction_strategy,
+            "set_max_clients": db.set_max_clients,
+            "set_max_message_size": db.set_max_message_size,
+        }
+        return config_edit_methods.get(config_setting, None)
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,11 +26,13 @@
 
 import os
 
-from .settings import BatchSettings, RunSettings
-
+from .base import BatchSettings, RunSettings
+from ..error import SSUnsupportedError
 
 class SrunSettings(RunSettings):
-    def __init__(self, exe, exe_args=None, run_args=None, env_vars=None, alloc=None):
+    def __init__(
+        self, exe, exe_args=None, run_args=None, env_vars=None, alloc=None, **kwargs
+    ):
         """Initialize run parameters for a slurm job with ``srun``
 
         ``SrunSettings`` should only be used on Slurm based systems.
@@ -50,20 +52,40 @@ class SrunSettings(RunSettings):
         :type alloc: str, optional
         """
         super().__init__(
-            exe, exe_args, run_command="srun", run_args=run_args, env_vars=env_vars
+            exe,
+            exe_args,
+            run_command="srun",
+            run_args=run_args,
+            env_vars=env_vars,
+            **kwargs,
         )
         self.alloc = alloc
-        self.mpmd = False
+        self.mpmd = []
 
-    def set_nodes(self, num_nodes):
+    def set_nodes(self, nodes):
         """Set the number of nodes
 
         Effectively this is setting: ``srun --nodes <num_nodes>``
 
-        :param num_nodes: number of nodes to run with
-        :type num_nodes: int
+        :param nodes: number of nodes to run with
+        :type nodes: int
         """
-        self.run_args["nodes"] = int(num_nodes)
+        self.run_args["nodes"] = int(nodes)
+
+    def make_mpmd(self, srun_settings):
+        """Make a mpmd workload by combining two ``srun`` commands
+
+        This connects the two settings to be executed with a single
+        Model instance
+
+        :param srun_settings: SrunSettings instance
+        :type srun_settings: SrunSettings
+        """
+        if self.colocated_db_settings:
+            raise SSUnsupportedError(
+                "Colocated models cannot be run as a mpmd workload"
+            )
+        self.mpmd.append(srun_settings)
 
     def set_hostlist(self, host_list):
         """Specify the hostlist for this job
@@ -80,7 +102,22 @@ class SrunSettings(RunSettings):
             raise TypeError("host_list argument must be list of strings")
         self.run_args["nodelist"] = ",".join(host_list)
 
-    def set_cpus_per_task(self, num_cpus):
+    def set_excluded_hosts(self, host_list):
+        """Specify a list of hosts to exclude for launching this job
+
+        :param host_list: hosts to exclude
+        :type host_list: list[str]
+        :raises TypeError:
+        """
+        if isinstance(host_list, str):
+            host_list = [host_list.strip()]
+        if not isinstance(host_list, list):
+            raise TypeError("host_list argument must be a list of strings")
+        if not all([isinstance(host, str) for host in host_list]):
+            raise TypeError("host_list argument must be list of strings")
+        self.run_args["exclude"] = ",".join(host_list)
+
+    def set_cpus_per_task(self, cpus_per_task):
         """Set the number of cpus to use per task
 
         This sets ``--cpus-per-task``
@@ -88,27 +125,38 @@ class SrunSettings(RunSettings):
         :param num_cpus: number of cpus to use per task
         :type num_cpus: int
         """
-        self.run_args["cpus-per-task"] = int(num_cpus)
+        self.run_args["cpus-per-task"] = int(cpus_per_task)
 
-    def set_tasks(self, num_tasks):
+    def set_tasks(self, tasks):
         """Set the number of tasks for this job
 
         This sets ``--ntasks``
 
-        :param num_tasks: number of tasks
-        :type num_tasks: int
+        :param tasks: number of tasks
+        :type tasks: int
         """
-        self.run_args["ntasks"] = int(num_tasks)
+        self.run_args["ntasks"] = int(tasks)
 
-    def set_tasks_per_node(self, num_tpn):
+    def set_tasks_per_node(self, tasks_per_node):
         """Set the number of tasks for this job
 
         This sets ``--ntasks-per-node``
 
-        :param num_tpn: number of tasks per node
-        :type num_tpn: int
+        :param tasks_per_node: number of tasks per node
+        :type tasks_per_node: int
         """
-        self.run_args["ntasks-per-node"] = int(num_tpn)
+        self.run_args["ntasks-per-node"] = int(tasks_per_node)
+
+    def set_walltime(self, walltime):
+        """Set the walltime of the job
+
+        format = "HH:MM:SS"
+
+        :param walltime: wall time
+        :type walltime: str
+        """
+        # TODO check for errors here
+        self.run_args["time"] = walltime
 
     def format_run_args(self):
         """return a list of slurm formatted run arguments
@@ -143,6 +191,8 @@ class SrunSettings(RunSettings):
         # TODO make these overridable by user
         presets = ["PATH", "LD_LIBRARY_PATH", "PYTHONPATH"]
 
+        comma_separated_format_str = []
+
         def add_env_var(var, format_str):
             try:
                 value = os.environ[var]
@@ -159,12 +209,16 @@ class SrunSettings(RunSettings):
 
         # add user supplied variables
         for k, v in self.env_vars.items():
-            format_str += "=".join((k, str(v))) + ","
-        return format_str.rstrip(",")
+            if "," in str(v):
+                comma_separated_format_str += ["=".join((k, str(v)))]
+                format_str += k + ","
+            else:
+                format_str += "=".join((k, str(v))) + ","
+        return format_str.rstrip(","), comma_separated_format_str
 
 
 class SbatchSettings(BatchSettings):
-    def __init__(self, nodes=None, time="", account=None, batch_args=None):
+    def __init__(self, nodes=None, time="", account=None, batch_args=None, **kwargs):
         """Specify run parameters for a Slurm batch job
 
         Slurm `sbatch` arguments can be written into ``batch_args``
@@ -185,13 +239,14 @@ class SbatchSettings(BatchSettings):
         :param batch_args: extra batch arguments, defaults to None
         :type batch_args: dict[str, str], optional
         """
-        super().__init__("sbatch", batch_args=batch_args)
-        if nodes:
-            self.set_nodes(nodes)
-        if time:
-            self.set_walltime(time)
-        if account:
-            self.set_account(account)
+        super().__init__(
+            "sbatch",
+            batch_args=batch_args,
+            nodes=nodes,
+            account=account,
+            time=time,
+            **kwargs,
+        )
 
     def set_walltime(self, walltime):
         """Set the walltime of the job
@@ -201,8 +256,9 @@ class SbatchSettings(BatchSettings):
         :param walltime: wall time
         :type walltime: str
         """
-        # TODO check for errors here
-        self.batch_args["time"] = walltime
+        # TODO check for formatting here
+        if walltime:
+            self.batch_args["time"] = walltime
 
     def set_nodes(self, num_nodes):
         """Set the number of nodes for this batch job
@@ -210,15 +266,17 @@ class SbatchSettings(BatchSettings):
         :param num_nodes: number of nodes
         :type num_nodes: int
         """
-        self.batch_args["nodes"] = int(num_nodes)
+        if num_nodes:
+            self.batch_args["nodes"] = int(num_nodes)
 
-    def set_account(self, acct):
+    def set_account(self, account):
         """Set the account for this batch job
 
-        :param acct: account id
-        :type acct: str
+        :param account: account id
+        :type account: str
         """
-        self.batch_args["account"] = acct
+        if account:
+            self.batch_args["account"] = account
 
     def set_partition(self, partition):
         """Set the partition for the batch job
@@ -227,6 +285,27 @@ class SbatchSettings(BatchSettings):
         :type partition: str
         """
         self.batch_args["partition"] = str(partition)
+
+    def set_queue(self, queue):
+        """alias for set_partition
+
+        Sets the partition for the slurm batch job
+
+        :param queue: the partition to run the batch job on
+        :type queue: str
+        """
+        if queue:
+            self.set_partition(queue)
+
+    def set_cpus_per_task(self, cpus_per_task):
+        """Set the number of cpus to use per task
+
+        This sets ``--cpus-per-task``
+
+        :param num_cpus: number of cpus to use per task
+        :type num_cpus: int
+        """
+        self.batch_args["cpus-per-task"] = int(cpus_per_task)
 
     def set_hostlist(self, host_list):
         """Specify the hostlist for this job

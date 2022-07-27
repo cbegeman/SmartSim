@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,46 +27,87 @@
 import os.path as osp
 import time
 from os import getcwd
-from pprint import pformat
 
-import pandas as pd
+from tabulate import tabulate
 from tqdm import trange
 
-from smartsim.control.manifest import Manifest
-
-from .control import Controller, Manifest
+from ._core import Controller, Generator, Manifest
+from ._core.utils import init_default
+from .database import Orchestrator
 from .entity import Ensemble, Model
 from .error import SmartSimError
-from .generation import Generator
-from .utils import get_logger
-from .utils.helpers import colorize, init_default
+from .log import get_logger
+from .settings import settings
+from .wlm import detect_launcher
 
 logger = get_logger(__name__)
 
 
 class Experiment:
-    """Experiments are the main user interface in SmartSim.
+    """Experiments are the Python user interface for SmartSim.
 
-    Experiments can create instances to launch called ``Model``
-    and ``Ensemble``. Through the ``Experiment`` interface, users
-    can programmatically create, configure, start, stop, poll and
-    query the instances they create.
+    Experiment is a factory class that creates stages of a workflow
+    and manages their execution.
+
+    The instances created by an Experiment represent executable code
+    that is either user-specified, like the ``Model`` instance created
+    by ``Experiment.create_model``, or pre-configured, like the ``Orchestrator``
+    instance created by ``Experiment.create_database``.
+
+    Experiment methods that accept a variable list of arguments, such as
+    ``Experiment.start`` or ``Experiment.stop``, accept any number of the
+    instances created by the Experiment.
+
+    In general, the Experiment class is designed to be initialized once
+    and utilized throughout runtime.
     """
 
     def __init__(self, name, exp_path=None, launcher="local"):
-        """Example initialization
+        """Initialize an Experiment instance
+
+        With the default settings, the Experiment will use the
+        local launcher, which will start all Experiment created
+        instances on the localhost.
+
+        Example of initializing an Experiment with the local launcher
 
         .. highlight:: python
         .. code-block:: python
 
             exp = Experiment(name="my_exp", launcher="local")
 
+        SmartSim supports multiple launchers which also can be specified
+        based on the type of system you are running on.
+
+        .. highlight:: python
+        .. code-block:: python
+
+            exp = Experiment(name="my_exp", launcher="slurm")
+
+        If you wish your driver script and Experiment to be run across
+        multiple system with different schedulers (workload managers)
+        you can also use the `auto` argument to have the Experiment guess
+        which launcher to use based on system installed binaries and libraries
+
+        .. highlight:: python
+        .. code-block:: python
+
+            exp = Experiment(name="my_exp", launcher="auto")
+
+
+        The Experiment path will default to the current working directory
+        and if the ``Experiment.generate`` method is called, a directory
+        with the Experiment name will be created to house the output
+        from the Experiment.
+
         :param name: name for the ``Experiment``
         :type name: str
         :param exp_path: path to location of ``Experiment`` directory if generated
         :type exp_path: str, optional
         :param launcher: type of launcher being used, options are "slurm", "pbs",
-                         "cobalt", "lsf", or "local". Defaults to "local"
+                         "cobalt", "lsf", or "local". If set to "auto",
+                         an attempt will be made to find an available launcher on the system.
+                         Defaults to "local"
         :type launcher: str, optional
         """
         self.name = name
@@ -77,17 +118,47 @@ class Experiment:
                 raise NotADirectoryError("Experiment path provided does not exist")
             exp_path = osp.abspath(exp_path)
         self.exp_path = init_default(osp.join(getcwd(), name), exp_path, str)
+
+        if launcher == "auto":
+            launcher = detect_launcher()
+
         self._control = Controller(launcher=launcher)
+        self._launcher = launcher.lower()
 
     def start(self, *args, block=True, summary=False):
-        """Launch instances passed as arguments
+        """Start passed instances using Experiment launcher
 
-        Start the ``Experiment`` by turning specified instances into jobs
-        for the underlying launcher and launching them.
+        Any instance ``Model``, ``Ensemble`` or ``Orchestrator``
+        instance created by the Experiment can be passed as
+        an argument to the start method.
 
-        Instances of ``Model``, ``Ensemble`` and ``Orchestrator``
-        can all be passed as arguments to the start method.
-        Passing more than one ``Orchestrator`` as arguments is forbidden.
+        .. highlight:: python
+        .. code-block:: python
+
+            exp = Experiment(name="my_exp", launcher="slurm")
+            settings = exp.create_run_settings(exe="./path/to/binary")
+            model = exp.create_model("my_model", settings)
+            exp.start(model)
+
+        Multiple instance can also be passed to the start method
+        at once no matter which type of instance they are. These will
+        all be launched together.
+
+        .. highlight:: python
+        .. code-block:: python
+
+            exp.start(model_1, model_2, db, ensemble, block=True)
+            # alternatively
+            stage_1 = [model_1, model_2, db, ensemble]
+            exp.start(*stage_1, block=True)
+
+
+        If `block==True` the Experiment will poll the launched instances
+        at runtime until all non-database jobs have completed. Database
+        jobs *must* be killed by the user by passing them to
+        ``Experiment.stop``. This allows for multiple stages of a workflow
+        to produce to and consume from the same Orchestrator database.
+
 
         :param block: block execution until all non-database
                       jobs are finished, defaults to True
@@ -111,6 +182,20 @@ class Experiment:
         Instances of ``Model``, ``Ensemble`` and ``Orchestrator``
         can all be passed as arguments to the stop method.
 
+        Whichever launcher was specified at Experiment initialization
+        will be used to stop the instance. For example, which using
+        the slurm launcher, this equates to running `scancel` on the
+        instance.
+
+        Example
+
+        .. highlight:: python
+        .. code-block:: python
+
+            exp.stop(model)
+            # multiple
+            exp.stop(model_1, model_2, db, ensemble)
+
         :raises TypeError: if wrong type
         :raises SmartSimError: if stop request fails
         """
@@ -118,11 +203,8 @@ class Experiment:
             stop_manifest = Manifest(*args)
             for entity in stop_manifest.models:
                 self._control.stop_entity(entity)
-            for entity_list in stop_manifest.ensembles:
+            for entity_list in stop_manifest.all_entity_lists:
                 self._control.stop_entity_list(entity_list)
-            orchestrator = stop_manifest.db
-            if orchestrator:
-                self._control.stop_entity_list(orchestrator)
         except SmartSimError as e:
             logger.error(e)
             raise
@@ -162,6 +244,20 @@ class Experiment:
         This method should only be used if jobs were launched
         with ``Experiment.start(block=False)``
 
+        The internal specified will control how often the
+        logging is performed, not how often the polling occurs.
+        By default, internal polling is set to every second for
+        local launcher jobs and every 10 seconds for all other
+        launchers.
+
+        If internal polling needs to be slower or faster based on
+        system or site standards, set the ``SMARTSIM_JM_INTERNAL``
+        environment variable to control the internal polling interval
+        for SmartSim.
+
+        For more verbose logging output, the ``SMARTSIM_LOG_LEVEL``
+        environment variable can be set to `debug`
+
         :param interval: frequency (in seconds) of logging to stdout,
                          defaults to 10 seconds
         :type interval: int, optional
@@ -181,6 +277,10 @@ class Experiment:
         An instance of ``Model`` or ``Ensemble`` can be passed
         as an argument.
 
+        Passing ``Orchestrator`` will return an error as a
+        database deployment is never finished until stopped
+        by the user.
+
         :param entity: object launched by this ``Experiment``
         :type entity: Model | Ensemble
         :returns: True if job has completed, False otherwise
@@ -195,26 +295,37 @@ class Experiment:
             raise
 
     def get_status(self, *args):
-        """Query the status of the specific job(s)
+        """Query the status of launched instances
 
-        Instances of ``Model``, ``Ensemble`` and ``Orchestrator``
-        can all be passed as arguments to ``Experiment.get_status()``
+        Return a smartsim.status string representing
+        the status of the launched instance.
 
-        :returns: status of the specific job(s)
+        .. highlight:: python
+        .. code-block:: python
+
+            exp.get_status(model)
+
+        As with an Experiment method, multiple instance of
+        varying types can be passed to and all statuses will
+        be returned at once.
+
+        .. highlight:: python
+        .. code-block:: python
+
+            statuses = exp.get_status(model, ensemble, orchestrator)
+            assert all([status == smartsim.status.STATUS_COMPLETED for status in statuses])
+
+        :returns: status of the instances passed as arguments
         :rtype: list[str]
         :raises SmartSimError: if status retrieval fails
-        :raises TypeError:
         """
         try:
             manifest = Manifest(*args)
             statuses = []
             for entity in manifest.models:
                 statuses.append(self._control.get_entity_status(entity))
-            for entity_list in manifest.ensembles:
+            for entity_list in manifest.all_entity_lists:
                 statuses.extend(self._control.get_entity_list_status(entity_list))
-            orchestrator = manifest.db
-            if orchestrator:
-                statuses.extend(self._control.get_entity_list_status(orchestrator))
             return statuses
         except SmartSimError as e:
             logger.error(e)
@@ -297,12 +408,53 @@ class Experiment:
     def create_model(
         self, name, run_settings, params=None, path=None, enable_key_prefixing=False
     ):
-        """Create a ``Model``
-        By default, all ``Model`` instances start with the cwd
-        as their path unless specified. Regardless of if path is
-        specified, upon user passing the instance to
-        ``Experiment.generate()``, the ``Model`` path will be
-        overwritten and replaced with the created directory for the ``Model``
+        """Create a general purpose ``Model``
+
+        The ``Model`` class is the most general encapsulation of
+        executable code in SmartSim. ``Model`` instances are named
+        references to pieces of a workflow that can be parameterized,
+        and executed.
+
+        ``Model`` instances can be launched sequentially or as a batch
+        by adding them into an ``Ensemble``.
+
+        Parameters supplied in the `params` argument can be written into
+        configuration files supplied at runtime to the model through
+        ``Model.attach_generator_files``. `params` can also be turned
+        into executable arguments by calling ``Model.params_to_args``
+
+        By default, ``Model`` instances will be executed in the
+        current working directory if no `path` argument is supplied.
+        If a ``Model`` instance is passed to ``Experiment.generate``,
+        a directory within the ``Experiment`` directory will be created
+        to house the input and output files from the model.
+
+        Example initialization of a ``Model`` instance
+
+        .. highlight:: python
+        .. code-block:: python
+
+            from smartsim import Experiment
+            run_settings = exp.create_run_settings("python", "run_pytorch_model.py")
+            model = exp.create_model("pytorch_model", run_settings)
+
+            # adding parameters to a model
+            run_settings = exp.create_run_settings("python", "run_pytorch_model.py")
+            train_params = {
+                "batch": 32,
+                "epoch": 10,
+                "lr": 0.001
+            }
+            model = exp.create_model("pytorch_model", run_settings, params=params)
+            model.attach_generator_files(to_configure="./train.cfg")
+            exp.generate(model)
+
+        New in 0.4.0, ``Model`` instances can be co-located with an
+        Orchestrator database shard through ``Model.colocate_db``. This
+        will launch a single ``Orchestrator`` instance on each compute
+        host used by the (possibly distributed) application. This is
+        useful for performant online inference or processing
+        at runtime.
 
         :param name: name of the model
         :type name: str
@@ -332,13 +484,200 @@ class Experiment:
             logger.error(e)
             raise
 
+    def create_run_settings(
+        self,
+        exe,
+        exe_args=None,
+        run_command="auto",
+        run_args=None,
+        env_vars=None,
+        **kwargs,
+    ):
+        """Create a ``RunSettings`` instance.
+
+        run_command="auto" will attempt to automatically
+        match a run command on the system with a RunSettings
+        class in SmartSim. If found, the class corresponding
+        to that run_command will be created and returned.
+
+        if the local launcher is being used, auto detection will
+        be turned off.
+
+        If a recognized run command is passed, the ``RunSettings``
+        instance will be a child class such as ``SrunSettings``
+
+        If not supported by smartsim, the base ``RunSettings`` class
+        will be created and returned with the specified run_command and run_args
+        will be evaluated literally.
+
+        Run Commands with implemented helper classes:
+         - aprun (ALPS)
+         - srun (SLURM)
+         - mpirun (OpenMPI)
+         - jsrun (LSF)
+
+        :param run_command: command to run the executable
+        :type run_command: str
+        :param exe: executable to run
+        :type exe: str
+        :param exe_args: arguments to pass to the executable
+        :type exe_args: list[str], optional
+        :param run_args: arguments to pass to the ``run_command``
+        :type run_args: list[str], optional
+        :param env_vars: environment variables to pass to the executable
+        :type env_vars: dict[str, str], optional
+        :return: the created ``RunSettings``
+        :rtype: RunSettings
+        """
+        try:
+            return settings.create_run_settings(
+                self._launcher,
+                exe,
+                exe_args=exe_args,
+                run_command=run_command,
+                run_args=run_args,
+                env_vars=env_vars,
+                **kwargs,
+            )
+        except SmartSimError as e:
+            logger.error(e)
+            raise
+
+    def create_batch_settings(
+        self, nodes=1, time="", queue="", account="", batch_args=None, **kwargs
+    ):
+        """Create a ``BatchSettings`` instance
+
+        Batch settings parameterize batch workloads. The result of this
+        function can be passed to the ``Ensemble`` initialization.
+
+        the `batch_args` parameter can be used to pass in a dictionary
+        of additional batch command arguments that aren't supported through
+        the smartsim interface
+
+
+        .. highlight:: python
+        .. code-block:: python
+
+            # i.e. for Slurm
+            batch_args = {
+                "distribution": "block"
+                "exclusive": None
+            }
+            bs = exp.create_batch_settings(nodes=3,
+                                           time="10:00:00",
+                                           batch_args=batch_args)
+            bs.set_account("default")
+
+        :param nodes: number of nodes for batch job, defaults to 1
+        :type nodes: int, optional
+        :param time: length of batch job, defaults to ""
+        :type time: str, optional
+        :param queue: queue or partition (if slurm), defaults to ""
+        :type queue: str, optional
+        :param account: user account name for batch system, defaults to ""
+        :type account: str, optional
+        :param batch_args: additional batch arguments, defaults to None
+        :type batch_args: dict[str, str], optional
+        :return: a newly created BatchSettings instance
+        :rtype: BatchSettings
+        :raises SmartSimError: if batch creation fails
+        """
+        try:
+            return settings.create_batch_settings(
+                self._launcher,
+                nodes=nodes,
+                time=time,
+                queue=queue,
+                account=account,
+                batch_args=batch_args,
+                **kwargs,
+            )
+        except SmartSimError as e:
+            logger.error(e)
+            raise
+
+    def create_database(
+        self,
+        port=6379,
+        db_nodes=1,
+        batch=False,
+        hosts=None,
+        run_command="auto",
+        interface="ipogif0",
+        account=None,
+        time=None,
+        queue=None,
+        single_cmd=True,
+        **kwargs,
+    ):
+        """Initialize an Orchestrator database
+
+        The ``Orchestrator`` database is a key-value store based
+        on Redis that can be launched together with other Experiment
+        created instances for online data storage.
+
+        When launched, ``Orchestrator`` can be used to communicate
+        data between Fortran, Python, C, and C++ applications.
+
+        Machine Learning models in Pytorch, Tensorflow, and ONNX (i.e. scikit-learn)
+        can also be stored within the Orchestrator database where they
+        can be called remotely and executed on CPU or GPU where
+        the database is hosted.
+
+        To enable a SmartSim ``Model`` to communicate with the database
+        the workload must utilize the SmartRedis clients. For more
+        information on the database, and SmartRedis clients see the
+        documentation at www.craylabs.org
+
+        :param port: TCP/IP port, defaults to 6379
+        :type port: int, optional
+        :param db_nodes: numver of database shards, defaults to 1
+        :type db_nodes: int, optional
+        :param batch: Run as a batch workload, defaults to False
+        :type batch: bool, optional
+        :param hosts: specify hosts to launch on, defaults to None
+        :type hosts: list[str], optional
+        :param run_command: specify launch binary or detect automatically, defaults to "auto"
+        :type run_command: str, optional
+        :param interface: Network interface, defaults to "ipogif0"
+        :type interface: str, optional
+        :param account: account to run batch on, defaults to None
+        :type account: str, optional
+        :param time: walltime for batch 'HH:MM:SS' format, defaults to None
+        :type time: str, optional
+        :param queue: queue to run the batch on, defaults to None
+        :type queue: str, optional
+        :param single_cmd: run all shards with one (MPMD) command, defaults to True
+        :type single_cmd: bool, optional
+        :raises SmartSimError: If detection of launcher or of run command fails
+        :raises SmartSimError: If user indicated an incompatible run command for the launcher
+        :return: Orchestrator
+        :rtype: Orchestrator or derived class
+        """
+        return Orchestrator(
+            port=port,
+            db_nodes=db_nodes,
+            batch=batch,
+            hosts=hosts,
+            run_command=run_command,
+            interface=interface,
+            account=account,
+            time=time,
+            queue=queue,
+            single_cmd=single_cmd,
+            launcher=self._launcher,
+            **kwargs,
+        )
+
     def reconnect_orchestrator(self, checkpoint):
         """Reconnect to a running ``Orchestrator``
 
-        This method can be used to connect to a Redis deployment
-        that was launched by a previous ``Experiment``. This way
-        users can run many experiments utilizing the same Redis
-        deployment
+        This method can be used to connect to a ``Orchestrator`` deployment
+        that was launched by a previous ``Experiment``. This can be
+        helpful in the case where separate runs of an ``Experiment``
+        wish to use the same ``Orchestrator`` instance currently
+        running on a system.
 
         :param checkpoint: the `smartsim_db.dat` file created
                            when an ``Orchestrator`` is launched
@@ -351,120 +690,75 @@ class Experiment:
             logger.error(e)
             raise
 
-    def summary(self):
+
+    def summary(self, format="github"):
         """Return a summary of the ``Experiment``
 
         The summary will show each instance that has been
         launched and completed in this ``Experiment``
 
-        :return: pandas Dataframe of ``Experiment`` history
-        :rtype: pd.DataFrame
+        :param format: the style in which the summary table is formatted,
+                       for a full list of styles see:
+                       https://github.com/astanin/python-tabulate#table-format,
+                       defaults to "github"
+        :type format: str, optional
+        :return: tabulate string of ``Experiment`` history
+        :rtype: str
         """
-        index = 0
-        df = pd.DataFrame(
-            columns=[
-                "Name",
-                "Entity-Type",
-                "JobID",
-                "RunID",
-                "Time",
-                "Status",
-                "Returncode",
-            ]
-        )
-        # TODO should this include running jobs?
-        for job in self._control._jobs.completed.values():
+        values = []
+        headers = [
+            "Name",
+            "Entity-Type",
+            "JobID",
+            "RunID",
+            "Time",
+            "Status",
+            "Returncode",
+        ]
+        for job in self._control.get_jobs().values():
             for run in range(job.history.runs + 1):
-                df.loc[index] = [
-                    job.entity.name,
-                    job.entity.type,
-                    job.history.jids[run],
-                    run,
-                    job.history.job_times[run],
-                    job.history.statuses[run],
-                    job.history.returns[run],
-                ]
-                index += 1
-        return df
+                values.append(
+                    [
+                        job.entity.name,
+                        job.entity.type,
+                        job.history.jids[run],
+                        run,
+                        job.history.job_times[run],
+                        job.history.statuses[run],
+                        job.history.returns[run],
+                    ]
+                )
+        else:
+            return tabulate(
+                values, headers, showindex=True, tablefmt=format, missingval="None"
+            )
 
     def _launch_summary(self, manifest):
         """Experiment pre-launch summary of entities that will be launched
+
         :param manifest: Manifest of deployables.
         :type manifest: Manifest
         """
 
-        def sprint(p):
-            print(p, flush=True)
+        summary = "\n\n=== Launch Summary ===\n"
+        summary += f"Experiment: {self.name}\n"
+        summary += f"Experiment Path: {self.exp_path}\n"
+        summary += f"Launcher: {self._launcher}\n"
+        if manifest.ensembles or manifest.ray_clusters:
+            summary += f"Ensembles: {len(manifest.ensembles) + len(manifest.ray_clusters)}\n"
+        if manifest.models:
+            summary += f"Models: {len(manifest.models)}\n"
 
-        sprint("\n")
-        models = manifest.models
-        ensembles = manifest.ensembles
-        orchestrator = manifest.db
+        if self._control.orchestrator_active:
+            summary += f"Database Status: active\n"
+        elif manifest.db:
+            summary += f"Database Status: launching\n"
+        else:
+            summary += f"Database Status: inactive\n"
 
-        header = colorize("=== LAUNCH SUMMARY ===", color="cyan", bold=True)
-        exname = colorize("Experiment: " + self.name, color="green", bold=True)
-        expath = colorize("Experiment Path: " + self.exp_path, color="green")
-        launch = colorize(
-            "Launching with: " + str(self._control._launcher), color="green"
-        )
-        numens = colorize("# of Ensembles: " + str(len(ensembles)), color="green")
-        numods = colorize("# of Models: " + str(len(models)), color="green")
-        has_orc = "yes" if orchestrator else "no"
-        orches = colorize("Database: " + has_orc, color="green")
+        summary += f"\n{str(manifest)}"
 
-        sprint(f"{header}")
-        sprint(f"{exname}\n{expath}\n{launch}\n{numens}\n{numods}\n{orches}\n")
-
-        if ensembles:
-            sprint(colorize("=== ENSEMBLES ===", color="cyan", bold=True))
-            for ens in ensembles:
-                name = colorize(ens.name, color="green", bold=True)
-                num_models = colorize(
-                    "# of models in ensemble: " + str(len(ens)), color="green"
-                )
-                batch_settings = colorize(
-                    "Batch Settings: \n" + str(ens.batch_settings),
-                    color="green",
-                )
-                run_settng = colorize(
-                    "Run Settings: \n" + str(ens.run_settings),
-                    color="green",
-                )
-                batch = colorize(f"Launching as batch: {ens.batch}", color="green")
-
-                sprint(f"{name}")
-                sprint(f"{num_models}")
-                sprint(f"{batch}")
-                if ens.batch:
-                    print(f"{batch_settings}")
-                else:
-                    sprint(f"{run_settng}")
-            sprint("\n")
-        if models:
-            sprint(colorize("=== MODELS ===", color="cyan", bold=True))
-            for model in models:
-                model_name = colorize(model.name, color="green", bold=True)
-                parameters = colorize(
-                    "Model Parameters: \n" + pformat(model.params), color="green"
-                )
-                run_settng = colorize(
-                    "Model Run Settings: \n" + str(model.run_settings),
-                    color="green",
-                )
-                sprint(f"{model_name}")
-                sprint(f"{parameters}")
-                sprint(f"{run_settng}")
-            sprint("\n")
-        if orchestrator:
-            sprint(colorize("=== DATABASE ===", color="cyan", bold=True))
-            size = colorize(
-                "# of database shards: " + str(orchestrator.num_shards), color="green"
-            )
-            batch = colorize(f"Launching as batch: {orchestrator.batch}", color="green")
-            sprint(f"{batch}")
-            sprint(f"{size}")
-
-        sprint("\n")
+        logger.info(summary)
 
         wait, steps = 10, 100
         prog_bar = trange(

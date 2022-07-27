@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,15 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+# Exceptions
+
+
 class SmartSimError(Exception):
     """Base SmartSim error"""
 
 
 class SSUnsupportedError(Exception):
-    """raised in the event that a called method isn't supported by SmartSim yet"""
-
-
-class SSConfigError(SmartSimError):
-    """Raised when there is an error in the configuration of SmartSim"""
+    """Raised in the event that a called method isn't supported by SmartSim yet"""
 
 
 class EntityExistsError(SmartSimError):
@@ -73,11 +72,27 @@ class ParameterWriterError(SmartSimError):
         return msg
 
 
-# ------ Launcher Errors ---------
+# Internal Exceptions
 
 
-class LauncherError(SmartSimError):
+class SSInternalError(Exception):
+    """
+    SSInternalError is raised when an internal error is encountered.
+    """
+
+    pass
+
+
+class SSConfigError(SSInternalError):
+    """Raised when there is an error in the configuration of SmartSim"""
+
+
+class LauncherError(SSInternalError):
     """Raised when there is an error in the launcher"""
+
+
+class AllocationError(LauncherError):
+    """Raised when there is a problem with the user WLM allocation"""
 
 
 class ShellError(LauncherError):

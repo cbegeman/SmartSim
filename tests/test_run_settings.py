@@ -3,19 +3,40 @@ from shutil import which
 
 import pytest
 
-from smartsim.settings import RunSettings
+from smartsim.settings import MpirunSettings, RunSettings
+from smartsim.settings.settings import create_run_settings
 
 
-def test_run_command_exists():
-    # you wouldn't actually do this, but we know python will be installed
-    settings = RunSettings("python", run_command="python")
-    python = which("python")
-    assert settings.run_command == python
+def test_create_run_settings_local():
+    # no run command provided
+    rs = create_run_settings("local", "echo", "hello", run_command=None)
+    assert rs.run_command == None
+    assert type(rs) == RunSettings
+
+    # auto should never return a run_command when
+    # the user has specified the local launcher
+    auto = create_run_settings("local", "echo", "hello", run_command="auto")
+    assert auto.run_command == None
+    assert type(auto) == RunSettings
+
+    # Test when a run_command is provided that we do not currently have a helper
+    # implementation for it.
+    # NOTE: we allow for the command to be invalid if it's user specified in the
+    # case where a head node may not have the same installed binaries as the MOM
+    # or compute nodes.
+    specific = create_run_settings("local", "echo", "hello", run_command="specific")
+    assert specific.run_command == "specific"
+    assert type(specific) == RunSettings
+
+    # make it return MpirunSettings
+    _mpirun = which("mpirun")
+    if _mpirun:
+        mpirun = create_run_settings("local", "echo", "hello", run_command="mpirun")
+        assert mpirun.run_command == _mpirun
+        assert type(mpirun) == MpirunSettings
 
 
-def test_run_command_not_exists():
-    settings = RunSettings("python", run_command="not-on-system")
-    assert settings.run_command == "not-on-system"
+####### Base Run Settings tests #######
 
 
 def test_add_exe_args():
@@ -68,13 +89,3 @@ def test_bad_exe_args_2():
     with pytest.raises(TypeError):
         _ = RunSettings("python", exe_args=exe_args)
 
-
-def test_str():
-    settings = RunSettings(
-        "echo", exe_args="test", run_command="mpirun", run_args={"-np": 2}
-    )
-    exe = f"Executable: {settings.exe[0]}\n"
-    exe_args = f"Executable arguments: {settings.exe_args}\n"
-    run_command = "Run Command: mpirun\n"
-    run_args = f"Run arguments: {pformat(settings.run_args)}"
-    assert settings.__str__() == (exe + exe_args + run_command + run_args)

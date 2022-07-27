@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from smartredis import Client
 
 
@@ -57,7 +58,7 @@ def run(device):
     tensor = np.random.randint(0, 100, size=(5, 3, 2)).astype(np.float32)
     client.put_tensor("input", tensor)
     client.set_function("svd", calc_svd)
-    client.run_script("svd", "calc_svd", "input", ["U", "S", "V"])
+    client.run_script("svd", "calc_svd", ["input"], ["U", "S", "V"])
     U = client.get_tensor("U")
     S = client.get_tensor("S")
     V = client.get_tensor("V")

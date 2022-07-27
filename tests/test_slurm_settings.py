@@ -1,6 +1,7 @@
-import os
+import pytest
 
 from smartsim.settings import SbatchSettings, SrunSettings
+from smartsim.error import SSUnsupportedError
 
 # ------ Srun ------------------------------------------------
 
@@ -45,12 +46,25 @@ def test_update_env():
     assert settings.env_vars["OMP_NUM_THREADS"] == 10
 
 
+def test_catch_colo_mpmd():
+    srun = SrunSettings("python")
+    srun.colocated_db_settings = {"port": 6379,
+                                  "cpus": 1}
+    srun_2 = SrunSettings("python")
+
+    # should catch the user trying to make rs mpmd that already are colocated
+    with pytest.raises(SSUnsupportedError):
+        srun.make_mpmd(srun_2)
+
+
 def test_format_env():
-    env_vars = {"OMP_NUM_THREADS": 20, "LOGGING": "verbose"}
+    env_vars = {"OMP_NUM_THREADS": 20, "LOGGING": "verbose", "SSKEYIN": "name_0,name_1"}
     settings = SrunSettings("python", env_vars=env_vars)
-    formatted = settings.format_env_vars()
+    formatted, comma_separated_formatted = settings.format_env_vars()
     assert "OMP_NUM_THREADS" in formatted
     assert "LOGGING" in formatted
+    assert "SSKEYIN" in formatted
+    assert "SSKEYIN=name_0,name_1" in comma_separated_formatted
 
 
 # ---- Sbatch ---------------------------------------------------

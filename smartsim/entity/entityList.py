@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,7 @@ class EntityList:
         try:
             if self.batch_settings:
                 return True
-            else:
-                return False
+            return False
         # local orchestrator cannot launch with batches
         except AttributeError:
             return False
@@ -70,6 +69,3 @@ class EntityList:
 
     def __len__(self):
         return len(self.entities)
-
-    def __repr__(self):
-        return self.name

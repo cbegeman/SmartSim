@@ -1,17 +1,12 @@
-import os.path as osp
-import pickle
-import sys
-from shutil import rmtree
-
 import pytest
 
-from smartsim import Experiment, constants
+from smartsim import Experiment, status
+from smartsim._core.utils import installed_redisai_backends
 from smartsim.database import Orchestrator
 from smartsim.entity import Ensemble, Model
-from smartsim.settings import RunSettings
 
 """Test smartredis integration for ensembles. Two copies of the same
-   program will be executed concurrently, and name collusions
+   program will be executed concurrently, and name collisions
    will be avoided through smartredis prefixing:
    smartredis will prefix each instance's tensors with a prefix
    set through environment variables by SmartSim.
@@ -20,17 +15,21 @@ from smartsim.settings import RunSettings
 
 REDIS_PORT = 6780
 
-
+shouldrun = True
 try:
-    import smartredis
     import torch
-except ImportError:
-    pass
 
+    import smartredis
+except ImportError:
+    shouldrun = False
+
+torch_available = "torch" in installed_redisai_backends()
+
+shouldrun &= torch_available
 
 pytestmark = pytest.mark.skipif(
-    ("torch" not in sys.modules),
-    reason="requires PyTorch",
+    not shouldrun,
+    reason="requires PyTorch, SmartRedis, and RedisAI's Torch backend",
 )
 
 
@@ -50,7 +49,7 @@ def test_exchange(fileutils):
     exp.generate(orc)
     exp.start(orc, block=False)
 
-    rs = RunSettings("python", "producer.py --exchange")
+    rs = exp.create_run_settings("python", "producer.py --exchange")
     params = {"mult": [1, -10]}
     ensemble = Ensemble(
         name="producer",
@@ -72,7 +71,7 @@ def test_exchange(fileutils):
 
     # get and confirm statuses
     statuses = exp.get_status(ensemble)
-    if not all([stat == constants.STATUS_COMPLETED for stat in statuses]):
+    if not all([stat == status.STATUS_COMPLETED for stat in statuses]):
         exp.stop(orc)
         assert False  # client ensemble failed
 
@@ -99,8 +98,8 @@ def test_consumer(fileutils):
     exp.generate(orc)
     exp.start(orc, block=False)
 
-    rs_prod = RunSettings("python", "producer.py")
-    rs_consumer = RunSettings("python", "consumer.py")
+    rs_prod = exp.create_run_settings("python", "producer.py")
+    rs_consumer = exp.create_run_settings("python", "consumer.py")
     params = {"mult": [1, -10]}
     ensemble = Ensemble(
         name="producer", params=params, run_settings=rs_prod, perm_strat="step"
@@ -124,7 +123,7 @@ def test_consumer(fileutils):
 
     # get and confirm statuses
     statuses = exp.get_status(ensemble)
-    if not all([stat == constants.STATUS_COMPLETED for stat in statuses]):
+    if not all([stat == status.STATUS_COMPLETED for stat in statuses]):
         exp.stop(orc)
         assert False  # client ensemble failed
 

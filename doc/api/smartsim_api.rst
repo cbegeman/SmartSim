@@ -18,6 +18,9 @@ Experiment
    Experiment.stop
    Experiment.create_ensemble
    Experiment.create_model
+   Experiment.create_database
+   Experiment.create_run_settings
+   Experiment.create_batch_settings
    Experiment.generate
    Experiment.poll
    Experiment.finished
@@ -49,17 +52,17 @@ Types of Settings:
 
     RunSettings
     SrunSettings
-    SbatchSettings
     AprunSettings
-    QsubBatchSettings
-    CobaltBatchSettings
     MpirunSettings
     JsrunSettings
+    SbatchSettings
+    QsubBatchSettings
+    CobaltBatchSettings
     BsubBatchSettings
 
 
-Local
------
+RunSettings
+-----------
 
 .. _rs-api:
 
@@ -80,8 +83,6 @@ launches that utilize a parallel launch binary like
     :undoc-members:
     :members:
 
-------------------------------------------
-
 
 SrunSettings
 ------------
@@ -95,11 +96,13 @@ steps to a batch.
 
 .. autosummary::
 
-    SrunSettings.set_cpus_per_task
-    SrunSettings.set_hostlist
     SrunSettings.set_nodes
     SrunSettings.set_tasks
     SrunSettings.set_tasks_per_node
+    SrunSettings.set_walltime
+    SrunSettings.set_hostlist
+    SrunSettings.set_excluded_hosts
+    SrunSettings.set_cpus_per_task
     SrunSettings.add_exe_args
     SrunSettings.format_run_args
     SrunSettings.format_env_vars
@@ -110,32 +113,6 @@ steps to a batch.
     :undoc-members:
     :members:
 
-
-SbatchSettings
---------------
-
-.. _sbatch_api:
-
-``SbatchSettings`` are used for launching batches onto Slurm
-WLM systems.
-
-
-.. autosummary::
-
-    SbatchSettings.set_account
-    SbatchSettings.set_batch_command
-    SbatchSettings.set_nodes
-    SbatchSettings.set_hostlist
-    SbatchSettings.set_partition
-    SbatchSettings.set_walltime
-    SbatchSettings.format_batch_args
-
-.. autoclass:: SbatchSettings
-    :inherited-members:
-    :undoc-members:
-    :members:
-
-------------------------------------------
 
 
 AprunSettings
@@ -169,63 +146,8 @@ and within batch launches (e.g., ``QsubBatchSettings``)
     :members:
 
 
-QsubBatchSettings
------------------
-
-.. _qsub_api:
-
-``QsubBatchSettings`` are used to configure jobs that should
-be launched as a batch on PBSPro systems.
 
 
-.. autosummary::
-
-    QsubBatchSettings.set_account
-    QsubBatchSettings.set_batch_command
-    QsubBatchSettings.set_nodes
-    QsubBatchSettings.set_ncpus
-    QsubBatchSettings.set_queue
-    QsubBatchSettings.set_resource
-    QsubBatchSettings.set_walltime
-    QsubBatchSettings.format_batch_args
-
-
-.. autoclass:: QsubBatchSettings
-    :inherited-members:
-    :undoc-members:
-    :members:
-
-
-------------------------------------------
-
-
-CobaltBatchSettings
--------------------
-
-.. _cqsub_api:
-
-``CobaltBatchSettings`` are used to configure jobs that should
-be launched as a batch on Cobalt Systems. They closely mimic
-that of the ``QsubBatchSettings`` for PBSPro.
-
-
-.. autosummary::
-
-    CobaltBatchSettings.set_account
-    CobaltBatchSettings.set_batch_command
-    CobaltBatchSettings.set_nodes
-    CobaltBatchSettings.set_queue
-    CobaltBatchSettings.set_walltime
-    CobaltBatchSettings.format_batch_args
-
-.. autoclass:: CobaltBatchSettings
-    :inherited-members:
-    :undoc-members:
-    :members:
-
-------------------------------------------
-    
-    
 JsrunSettings
 -------------
 
@@ -261,38 +183,6 @@ and within batch launches (i.e. ``BsubBatchSettings``)
     :members:
 
 
-BsubBatchSettings
------------------
-
-.. _bsub_api:
-
-``BsubBatchSettings`` are used to configure jobs that should
-be launched as a batch on LSF systems.
-
-
-.. autosummary::
-
-    BsubBatchSettings.set_walltime
-    BsubBatchSettings.set_smts
-    BsubBatchSettings.set_project
-    BsubBatchSettings.set_nodes
-    BsubBatchSettings.set_expert_mode_req
-    BsubBatchSettings.set_hostlist
-    BsubBatchSettings.set_tasks
-    BsubBatchSettings.format_batch_args
-
-
-.. autoclass:: BsubBatchSettings
-    :inherited-members:
-    :undoc-members:
-    :members:
-
-------------------------------------------
-
-
-The following are ``RunSettings`` types that are supported on multiple
-launchers
-
 MpirunSettings
 --------------
 
@@ -320,108 +210,165 @@ supported on Slurm, PBSpro, and Cobalt.
     :members:
 
 
+------------------------------------------
+
+
+
+SbatchSettings
+--------------
+
+.. _sbatch_api:
+
+``SbatchSettings`` are used for launching batches onto Slurm
+WLM systems.
+
+
+.. autosummary::
+
+    SbatchSettings.set_account
+    SbatchSettings.set_batch_command
+    SbatchSettings.set_nodes
+    SbatchSettings.set_hostlist
+    SbatchSettings.set_partition
+    SbatchSettings.set_queue
+    SbatchSettings.set_walltime
+    SbatchSettings.format_batch_args
+
+.. autoclass:: SbatchSettings
+    :inherited-members:
+    :undoc-members:
+    :members:
+
+
+QsubBatchSettings
+-----------------
+
+.. _qsub_api:
+
+``QsubBatchSettings`` are used to configure jobs that should
+be launched as a batch on PBSPro systems.
+
+
+.. autosummary::
+
+    QsubBatchSettings.set_account
+    QsubBatchSettings.set_batch_command
+    QsubBatchSettings.set_nodes
+    QsubBatchSettings.set_ncpus
+    QsubBatchSettings.set_queue
+    QsubBatchSettings.set_resource
+    QsubBatchSettings.set_walltime
+    QsubBatchSettings.format_batch_args
+
+
+.. autoclass:: QsubBatchSettings
+    :inherited-members:
+    :undoc-members:
+    :members:
+
+
+
+CobaltBatchSettings
+-------------------
+
+.. _cqsub_api:
+
+``CobaltBatchSettings`` are used to configure jobs that should
+be launched as a batch on Cobalt Systems. They closely mimic
+that of the ``QsubBatchSettings`` for PBSPro.
+
+
+.. autosummary::
+
+    CobaltBatchSettings.set_account
+    CobaltBatchSettings.set_batch_command
+    CobaltBatchSettings.set_nodes
+    CobaltBatchSettings.set_queue
+    CobaltBatchSettings.set_walltime
+    CobaltBatchSettings.format_batch_args
+
+.. autoclass:: CobaltBatchSettings
+    :inherited-members:
+    :undoc-members:
+    :members:
+
+
+
+BsubBatchSettings
+-----------------
+
+.. _bsub_api:
+
+``BsubBatchSettings`` are used to configure jobs that should
+be launched as a batch on LSF systems.
+
+
+.. autosummary::
+
+    BsubBatchSettings.set_walltime
+    BsubBatchSettings.set_smts
+    BsubBatchSettings.set_project
+    BsubBatchSettings.set_nodes
+    BsubBatchSettings.set_expert_mode_req
+    BsubBatchSettings.set_hostlist
+    BsubBatchSettings.set_tasks
+    BsubBatchSettings.format_batch_args
+
+
+.. autoclass:: BsubBatchSettings
+    :inherited-members:
+    :undoc-members:
+    :members:
+
+
 Orchestrator
 ============
 
 .. currentmodule:: smartsim.database
 
-The ``Orchestrator`` API is implemented for each launcher that
-SmartSim supports.
 
- - Slurm
- - Cobalt
- - PBSPro
- - LSF
+Orchestrator
+------------
 
-The base ``Orchestrator`` class can be used for launching Redis
-locally on single node workstations or laptops.
-
-Local Orchestrator
-------------------
-
-.. _local_orc_api:
-
-The ``Orchestrator`` base class can be launched through
-the local launcher and does not support cluster instances
+.. _orc_api:
 
 .. autoclass:: Orchestrator
    :members:
    :inherited-members:
    :undoc-members:
-   :exclude-members: create_cluster
 
-PBSPro Orchestrator
--------------------
 
-.. _pbs_orc_api:
+Model
+=====
 
-The PBSPro Orchestrator can be launched as a batch, and
-in an interactive allocation.
+.. currentmodule:: smartsim.entity.model
 
-.. autoclass:: PBSOrchestrator
-   :show-inheritance:
+.. autosummary::
+
+   Model.__init__
+   Model.attach_generator_files
+   Model.colocate_db
+   Model.params_to_args
+   Model.register_incoming_entity
+   Model.enable_key_prefixing
+   Model.disable_key_prefixing
+   Model.query_key_prefixing
+
+.. autoclass:: Model
    :members:
-   :inherited-members:
-   :undoc-members:
-   :exclude-members: create_cluster
-
-Slurm Orchestrator
-------------------
-
-.. _slurm_orc_api:
-
-The ``SlurmOrchestrator`` is used to launch Redis on to Slurm WLM
-systems and can be launched as a batch, on existing allocations,
-or in an interactive allocation.
-
-.. autoclass:: SlurmOrchestrator
    :show-inheritance:
-   :members:
    :inherited-members:
-   :undoc-members:
-   :exclude-members: create_cluster
 
-Cobalt Orchestrator
--------------------
-
-.. _cobalt_orc_api:
-
-The ``CobaltOrchestrator`` can be launched as a batch, and
-in an interactive allocation.
-
-.. autoclass:: CobaltOrchestrator
-    :show-inheritance:
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :exclude-members: create_cluster
-
-LSF Orchestrator
-----------------
-
-.. _lsf_orc_api:
-
-The ``LSFOrchestrator`` can be launched as a batch, and
-in an interactive allocation.
-
-.. autoclass:: LSFOrchestrator
-    :show-inheritance:
-    :members:
-    :inherited-members:
-    :undoc-members:
-    :exclude-members: create_cluster
-
-Entity
-======
 
 Ensemble
---------
+========
 
 .. currentmodule:: smartsim.entity.ensemble
 
 .. autosummary::
 
    Ensemble.__init__
+   Ensemble.models
    Ensemble.add_model
    Ensemble.attach_generator_files
    Ensemble.register_incoming_entity
@@ -434,59 +381,96 @@ Ensemble
    :inherited-members:
 
 
-Model
------
+Machine Learning
+================
 
-.. currentmodule:: smartsim.entity.model
+.. _ml_api:
 
-.. autosummary::
-
-   Model.__init__
-   Model.attach_generator_files
-   Model.register_incoming_entity
-   Model.enable_key_prefixing
-   Model.disable_key_prefixing
-   Model.query_key_prefixing
-
-.. autoclass:: Model
-   :members:
-   :show-inheritance:
-   :inherited-members:
-
+SmartSim includes built-in utilities for supporting TensorFlow, Keras, and Pytorch.
 
 TensorFlow
-==========
+----------
 
 .. _smartsim_tf_api:
 
-SmartSim includes built-in utilities for supporting TensorFlow and Keras in SmartSim.
+SmartSim includes built-in utilities for supporting TensorFlow and Keras in training and inference.
 
-.. currentmodule:: smartsim.tf.utils
+.. currentmodule:: smartsim.ml.tf.utils
 
 .. autosummary::
 
     freeze_model
 
-.. automodule:: smartsim.tf.utils
+.. automodule:: smartsim.ml.tf.utils
     :members:
 
+
+.. currentmodule:: smartsim.ml.tf
+
+.. autoclass:: StaticDataGenerator
+   :show-inheritance:
+   :inherited-members:
+   :members:
+
+.. autoclass:: DynamicDataGenerator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+PyTorch
+----------
+
+.. _smartsim_torch_api:
+
+SmartSim includes built-in utilities for supporting PyTorch in training and inference.
+
+.. currentmodule:: smartsim.ml.torch
+
+.. autoclass:: StaticDataGenerator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+.. autoclass:: DynamicDataGenerator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+.. autoclass:: DataLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
 
 Slurm
 =====
 
 .. _slurm_module_api:
 
-.. note::
-    This module is importable through smartsim e.g., from smartsim import slurm
 
-
-
-.. currentmodule:: smartsim.launcher.slurm
+.. currentmodule:: smartsim.slurm
 
 .. autosummary::
 
-    slurm.get_allocation
-    slurm.release_allocation
+    get_allocation
+    release_allocation
 
-.. automodule:: smartsim.launcher.slurm.slurm
+.. automodule:: smartsim.slurm
     :members:
+
+
+Ray
+===
+
+.. currentmodule:: smartsim.exp.ray
+
+.. _ray_api:
+
+``RayCluster`` is used to launch a Ray cluster
+ and can be launched as a batch or in an interactive allocation.
+
+.. autoclass:: RayCluster
+    :show-inheritance:
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :exclude-members: batch set_path type

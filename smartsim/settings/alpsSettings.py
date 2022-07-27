@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .settings import RunSettings
-
+from .base import RunSettings
+from ..error import SSUnsupportedError
 
 class AprunSettings(RunSettings):
-    def __init__(self, exe, exe_args=None, run_args=None, env_vars=None):
+    def __init__(self, exe, exe_args=None, run_args=None, env_vars=None, **kwargs):
         """Settings to run job with ``aprun`` command
 
         ``AprunSettings`` can be used for both the `pbs` and `cobalt`
@@ -44,7 +44,12 @@ class AprunSettings(RunSettings):
         :type env_vars: dict[str, str], optional
         """
         super().__init__(
-            exe, exe_args, run_command="aprun", run_args=run_args, env_vars=env_vars
+            exe,
+            exe_args,
+            run_command="aprun",
+            run_args=run_args,
+            env_vars=env_vars,
+            **kwargs,
         )
         self.mpmd = []
 
@@ -57,37 +62,41 @@ class AprunSettings(RunSettings):
         :param aprun_settings: ``AprunSettings`` instance
         :type aprun_settings: AprunSettings
         """
+        if self.colocated_db_settings:
+            raise SSUnsupportedError(
+                "Colocated models cannot be run as a mpmd workload"
+            )
         self.mpmd.append(aprun_settings)
 
-    def set_cpus_per_task(self, num_cpus):
+    def set_cpus_per_task(self, cpus_per_task):
         """Set the number of cpus to use per task
 
         This sets ``--cpus-per-pe``
 
-        :param num_cpus: number of cpus to use per task
-        :type num_cpus: int
+        :param cpus_per_task: number of cpus to use per task
+        :type cpus_per_task: int
         """
-        self.run_args["cpus-per-pe"] = int(num_cpus)
+        self.run_args["cpus-per-pe"] = int(cpus_per_task)
 
-    def set_tasks(self, num_tasks):
+    def set_tasks(self, tasks):
         """Set the number of tasks for this job
 
         This sets ``--pes``
 
-        :param num_tasks: number of tasks
-        :type num_tasks: int
+        :param tasks: number of tasks
+        :type tasks: int
         """
-        self.run_args["pes"] = int(num_tasks)
+        self.run_args["pes"] = int(tasks)
 
-    def set_tasks_per_node(self, num_tpn):
+    def set_tasks_per_node(self, tasks_per_node):
         """Set the number of tasks for this job
 
         This sets ``--pes-per-node``
 
-        :param num_tpn: number of tasks per node
-        :type num_tpn: int
+        :param tasks_per_node: number of tasks per node
+        :type tasks_per_node: int
         """
-        self.run_args["pes-per-node"] = int(num_tpn)
+        self.run_args["pes-per-node"] = int(tasks_per_node)
 
     def set_hostlist(self, host_list):
         """Specify the hostlist for this job
@@ -103,6 +112,21 @@ class AprunSettings(RunSettings):
         if not all([isinstance(host, str) for host in host_list]):
             raise TypeError("host_list argument must be list of strings")
         self.run_args["node-list"] = ",".join(host_list)
+
+    def set_excluded_hosts(self, host_list):
+        """Specify a list of hosts to exclude for launching this job
+
+        :param host_list: hosts to exclude
+        :type host_list: list[str]
+        :raises TypeError:
+        """
+        if isinstance(host_list, str):
+            host_list = [host_list.strip()]
+        if not isinstance(host_list, list):
+            raise TypeError("host_list argument must be a list of strings")
+        if not all([isinstance(host, str) for host in host_list]):
+            raise TypeError("host_list argument must be list of strings")
+        self.run_args["exclude-node-list"] = ",".join(host_list)
 
     def format_run_args(self):
         """Return a list of ALPS formatted run arguments
@@ -138,3 +162,16 @@ class AprunSettings(RunSettings):
             for name, value in self.env_vars.items():
                 formatted += ["-e", name + "=" + str(value)]
         return formatted
+
+    def set_walltime(self, walltime):
+        """Set the walltime of the job
+
+        format = "HH:MM:SS"
+
+        :param walltime: wall time
+        :type walltime: str
+        """
+        h_m_s = walltime.split(":")
+        self.run_args["t"] = str(
+            int(h_m_s[0]) * 3600 + int(h_m_s[1]) * 60 + int(h_m_s[2])
+        )

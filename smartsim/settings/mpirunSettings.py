@@ -1,6 +1,6 @@
 # BSD 2-Clause License
 #
-# Copyright (c) 2021, Hewlett Packard Enterprise
+# Copyright (c) 2021-2022, Hewlett Packard Enterprise
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .settings import RunSettings
-
+from .base import RunSettings
+from ..error import SSUnsupportedError
 
 class MpirunSettings(RunSettings):
-    def __init__(self, exe, exe_args=None, run_args=None, env_vars=None):
+    def __init__(self, exe, exe_args=None, run_args=None, env_vars=None, **kwargs):
         """Settings to run job with ``mpirun`` command (OpenMPI)
 
         Note that environment variables can be passed with a None
@@ -49,7 +49,12 @@ class MpirunSettings(RunSettings):
         :type env_vars: dict[str, str], optional
         """
         super().__init__(
-            exe, exe_args, run_command="mpirun", run_args=run_args, env_vars=env_vars
+            exe,
+            exe_args,
+            run_command="mpirun",
+            run_args=run_args,
+            env_vars=env_vars,
+            **kwargs,
         )
         self.mpmd = []
 
@@ -62,6 +67,10 @@ class MpirunSettings(RunSettings):
         :param mpirun_settings: MpirunSettings instance
         :type mpirun_settings: MpirunSettings
         """
+        if self.colocated_db_settings:
+            raise SSUnsupportedError(
+                "Colocated models cannot be run as a mpmd workload"
+            )
         self.mpmd.append(mpirun_settings)
 
     def set_task_map(self, task_mapping):
@@ -76,7 +85,7 @@ class MpirunSettings(RunSettings):
         """
         self.run_args["map-by"] = str(task_mapping)
 
-    def set_cpus_per_task(self, num_cpus):
+    def set_cpus_per_task(self, cpus_per_task):
         """Set the number of tasks for this job
 
         This sets ``--cpus-per-proc``
@@ -84,20 +93,28 @@ class MpirunSettings(RunSettings):
         note: this option has been deprecated in openMPI 4.0+
         and will soon be replaced.
 
-        :param num_tasks: number of tasks
-        :type num_tasks: int
+        :param cpus_per_task: number of tasks
+        :type cpus_per_task: int
         """
-        self.run_args["cpus-per-proc"] = int(num_cpus)
+        self.run_args["cpus-per-proc"] = int(cpus_per_task)
 
-    def set_tasks(self, num_tasks):
+    def set_tasks_per_node(self, tasks_per_node):
+        """Set the number of tasks per node
+
+        :param tasks_per_node: number of tasks to launch per node
+        :type tasks_per_node: int
+        """
+        self.run_args["npernode"] = int(tasks_per_node)
+
+    def set_tasks(self, tasks):
         """Set the number of tasks for this job
 
         This sets ``--n``
 
-        :param num_tasks: number of tasks
-        :type num_tasks: int
+        :param tasks: number of tasks
+        :type tasks: int
         """
-        self.run_args["n"] = int(num_tasks)
+        self.run_args["n"] = int(tasks)
 
     def set_hostlist(self, host_list):
         """Set the hostlist for the ``mpirun`` command
