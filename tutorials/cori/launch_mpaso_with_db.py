@@ -2,7 +2,7 @@ from smartredis import Client
 from smartsim import Experiment
 from smartsim.database import Orchestrator
 
-MPASO_DIR="/global/homes/c/cbegeman/MPAS-Ocean-test-case-output/smartsim/ocean/baroclinic_channel/10km/default/forward"
+MPASO_DIR="/global/homes/c/cbegeman/MPAS-Ocean-test-case-output/smartsim/ocean/baroclinic_channel/10km/default"
 
 print('Create Experiment object')
 exp = Experiment("mpas-ocean_simulation", launcher="slurm")
@@ -19,9 +19,22 @@ db = exp.create_database(db_nodes=1,
 
 # define how simulation should be executed
 print('Set run settings')
-settings = exp.create_run_settings(f"{MPASO_DIR}/ocean_model", 
+settings = exp.create_run_settings(f"{MPASO_DIR}/forward/ocean_model", 
                                    exe_args=["-n namelist.ocean",
                                              "-s streams.ocean"])
+# Option 1 will look something like
+#settings = exp.create_run_settings(f"{MPASO_DIR}/run_ocean_model.sh")
+# And option 1's bash script will look something like
+#--------------------------
+#!/bin/bash
+#source load_compass_env.sh
+#compass run
+#--------------------------
+
+# Option 2 will look something like
+#settings = exp.create_run_settings("sbatch",
+#                                    f"{MPASO_DIR}/submit_ocean_model")
+
 # This option gives the error "compass executable not found"
 #settings = exp.create_run_settings("compass", 
 #                                   exe_args=["run"])
