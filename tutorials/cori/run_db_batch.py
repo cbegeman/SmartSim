@@ -3,9 +3,10 @@ import time
 import os
 
 db_port=6379
+#db_port=6780
 exp = Experiment("batch-db-on-slurm", launcher="slurm")
 db_cluster = exp.create_database(db_nodes=1,
-                                 db_port=db_port,
+                                 port=db_port,
                                  batch=True,
                                  interface="lo",
                                  time="00:30:00",
